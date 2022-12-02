@@ -1,6 +1,5 @@
 from bluetoothpacket import BluetoothPacket
 
-from pydub import AudioSegment
 
 from .utils import sine_wave
 import numpy as np

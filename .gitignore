@@ -6,3 +6,6 @@ __pycache__
 .vscode
 *.pdf
 !main.pdf
+*.flac
+*.mp3
+*.wav
