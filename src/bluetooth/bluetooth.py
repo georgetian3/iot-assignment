@@ -1,7 +1,7 @@
 from bluetoothpacket import BluetoothPacket
 
 
-from .utils import sine_wave
+from ..modem.utils import sine_wave
 import numpy as np
 
 

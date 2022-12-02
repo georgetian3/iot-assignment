@@ -1,4 +1,4 @@
+Flask
 matplotlib
 numpy
-pydub
-simpleaudio
+sounddevice
