@@ -11,9 +11,9 @@ class SoundProperties:
         if f0 < 0 or f1 < 0:
             raise ValueError('Frequency cannot be negative')
         if sample_rate < 0:
-            raise ValueError('Frequency cannot be negative')
+            raise ValueError('Sample rate cannot be negative')
         if symbol_duration < 0:
-            raise ValueError('Frequency cannot be negative')
+            raise ValueError('Symbol duration cannot be negative')
 
         self.f0 = f0
         self.f1 = f1

@@ -3,7 +3,7 @@ from queue import Queue
 
 import sounddevice as sd
 
-from .utils import graph
+#from .utils import graph
 
 from .soundproperties import SoundProperties
 

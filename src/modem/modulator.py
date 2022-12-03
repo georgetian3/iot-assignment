@@ -18,19 +18,23 @@ class Modulator:
             ) for freq in (self.p.f0, self.p.f1)
         )
     
-    def modulate(self, bits: str, play=True):
+    def modulate(self, bits: str) -> np.ndarray:
         """
         `bits`: string of 0s and 1s
+        Returns: sound wave of `bits`
         """
         if not set(bits).issubset(set('01')):
             raise ValueError('bits must only contain 0s and 1s')
             
         wave = np.concatenate(tuple(self.waves[int(bit)] for bit in bits))
 
-        if play:
-            Thread(target=sd.play, args=(wave, self.p.sample_rate), daemon=True).start()
-
         return wave
+
+    def play(self, wave, blocking=False):
+        if not blocking:
+            Thread(target=self.play, args=(wave, True), daemon=True).start()
+            return
+        sd.play(wave, samplerate=self.p.sample_rate)
 
     def stop(self):
         sd.stop()
