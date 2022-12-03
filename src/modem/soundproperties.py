@@ -1,23 +1,28 @@
 class SoundProperties:
     def __init__(self, 
-        amplitude: float,
-        freq_0: float,
-        freq_1: float,
-        phase: float,
-        sample_rate: int,
-        duration: float
+        f0: float,              # frequency corresponding to 0 bit
+        f1: float,              # frequency corresponding to 1 bit
+        th0: float,             # threshold magnitude for 0 bit
+        th1: float,             # threshold magnitude for 1 bit
+        sample_rate: int,       
+        symbol_duration: float  # duration for which a single bit is transmitted
     ):
 
-        if freq_0 < 0 or freq_1 < 0:
+        if f0 < 0 or f1 < 0:
             raise ValueError('Frequency cannot be negative')
         if sample_rate < 0:
             raise ValueError('Frequency cannot be negative')
-        if duration < 0:
+        if symbol_duration < 0:
             raise ValueError('Frequency cannot be negative')
 
-        self.amplitude = amplitude
-        self.freq_0 = freq_0
-        self.freq_1 = freq_1
-        self.phase = phase
+        self.f0 = f0
+        self.f1 = f1
+        self.th0 = th0
+        self.th1 = th1
         self.sample_rate = sample_rate
-        self.duration = duration
+        self.symbol_duration = symbol_duration
+
+
+
+
+        

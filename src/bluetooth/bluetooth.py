@@ -4,26 +4,18 @@ from bluetoothpacket import BluetoothPacket
 from ..modem.utils import sine_wave
 import numpy as np
 
+from ..modem.soundproperties import SoundProperties
+from ..modem.modulator import Modulator
+from ..modem.demodulator import Demodulator
+
+from queue import Queue
 
 
 
+class BluetoothSender:
+    def __init__(self, properties: SoundProperties):
+        self.__modulator = Modulator(properties)
 
-class Bluetooth:
-    def __init__(self, freq_high, freq_low, sample_rate, bit_duration, amplitude):
-        self.__freq_high = freq_high
-        self.__freq_low = freq_low
-        self.__sample_rate = sample_rate
-        self.__bit_duration = bit_duration
-        self.__amplitude = amplitude
-
-
-class BluetoothSender(Bluetooth):
-    def __init__(self, freq_high, freq_low, sample_rate, bit_duration, amplitude):
-        super().__init__(freq_high, freq_low, sample_rate, bit_duration, amplitude)
-        self.__sig = [
-            sine_wave(amplitude, freq, 0, sample_rate, bit_duration)
-                for freq in (freq_low, freq_high)
-        ]
 
     def encode(self, bits: str) -> BluetoothPacket:
         if not set(bits).issubset(set('01')):
@@ -35,17 +27,21 @@ class BluetoothSender(Bluetooth):
         return wave
 
     def send(self, packet: BluetoothPacket) -> None:
-        pass
+        self.__modulator.modulate(packet.bits)
 
-class BluetoothReceiver(Bluetooth):
-    def __init__(self, freq_high, freq_low, sample_rate, bit_duration, amplitude):
-        super().__init__(freq_high, freq_low, sample_rate, bit_duration, amplitude)
+class BluetoothReceiver:
+    def __init__(self, properties: SoundProperties):
+        self.__demodulator = Demodulator(properties)
 
 
     def decode(self, packet: BluetoothPacket) -> str:
         pass
 
     def receive(self) -> BluetoothPacket:
+        buffer = Queue(1024)
+        self.__demodulator.demodulate(buffer, 8192, 10)
+        while True:
+            print
         pass
 
 
