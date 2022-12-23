@@ -1,75 +1,23 @@
-import numpy as np
 from queue import Queue
-
+import threading
+import numpy as np
 import sounddevice as sd
-
-#from .utils import graph
+from collections import deque
 
 from .soundproperties import SoundProperties
 
-
-class CircularQueue:
-    def __init__(self, size):
-        self.size = size
-        self.elements = [None] * size
-        self.head = 0
-        self.tail = 0 # tail is the index of the element after the last
-
-
-
-    def append(self, x):
-        self.elements[self.tail] = x
-
-        self.tail = (self.tail + 1) % self.size
-
-        if self.head == self.tail:
-            self.head += 1
-
-    def extend(self, xs):
-        for x in xs:
-            self.append(x)
-    
-    def view(self, start, stop=None):
-        if not 0 <= start < self.size:
-            raise ValueError('Start out of bounds')
-        if stop == None:
-            return self.elements[self.head]
-        if not start <= stop <= self.size:
-            raise ValueError('End out of bounds')
-
-        i1 = (self.head + start) % self.size
-        i2 = (self.head + stop) % self.size
-
-
-
-        if (i1 >= i2):
-            return self.elements[i1:] + self.elements[:i2]
-        else:
-            return self.elements[i1:i2]
-
-    def __str__(self):
-        return str(self.view(0, self.size))
-
-
-import sys
-
-import threading
-
 class Demodulator:
-    def __init__(self, properties: SoundProperties):
-        """
-        `properties`: physical properties of the sound wave to be received and demodulated
-        """
-        self.p = properties
-        self.buffer = Queue(1024)
-        self.__stop = False
+    def __init__(self, properties: SoundProperties, th0, th1):
+        self.__properties = properties
+        self.__th0 = th0
+        self.__th1 = th1
 
-    def closest_frequency_index(self, blocksize, target_freq):
+    def closest_frequency_index(self, block_size, sample_rate, target_freq):
 
         deltas = float('inf')
         closest = -1
 
-        freqs = np.fft.fftfreq(blocksize, 1 / self.p.sample_rate)[:blocksize // 2]
+        freqs = np.fft.fftfreq(block_size, 1 / sample_rate)[:block_size // 2]
 
         for i in range(len(freqs)):
             if abs(freqs[i] - target_freq) < deltas:
@@ -78,35 +26,61 @@ class Demodulator:
 
         return closest
 
-
-
-    def demodulate(self, bit_buffer: list, blocksize: int, blocking: bool=False):
+    def demodulate(self,
+        buffer: Queue,
+        blocking: bool=False
+    ):
         # run this function in a different thread
         if not blocking:
-            threading.Thread(target=self.demodulate, args=(bit_buffer, blocksize, True,), daemon=False).start()
+            threading.Thread(target=self.demodulate, args=(buffer, True), daemon=False).start()
             return
 
+
+        subsymbol_count = 4
+        
+        #block_size = int(self.__properties.sample_rate * self.__properties.symbol_duration / subsymbol_count)
         stream = sd.InputStream(
-            samplerate=self.p.sample_rate,
-            blocksize=blocksize,
+            samplerate=self.__properties.sample_rate,
+            #blocksize=block_size,
+            blocksize=self.__properties.block_size,
             channels=1,
         )
 
-        i0 = self.closest_frequency_index(blocksize, self.p.f0)
-        i1 = self.closest_frequency_index(blocksize, self.p.f1)
+        #i0 = self.closest_frequency_index(block_size, self.__properties.sample_rate, self.__properties.f0)
+        #i1 = self.closest_frequency_index(block_size, self.__properties.sample_rate, self.__properties.f1)
+        i0 = self.closest_frequency_index(self.__properties.block_size, self.__properties.sample_rate, self.__properties.f0)
+        i1 = self.closest_frequency_index(self.__properties.block_size, self.__properties.sample_rate, self.__properties.f1)
 
+
+        subsymbols = deque(maxlen=subsymbol_count)
+        invalids = deque([-1] * subsymbol_count)
+
+        self.__stop = False
         with stream:
             while not self.__stop:
-                indata = stream.read(blocksize)[0]
-                magnitudes = abs(np.fft.rfft(indata[:, 0])[:blocksize // 2])
-                if magnitudes[i0] > self.p.th0 and magnitudes[i0] >= magnitudes[i1]:
-                    print(0, end='')
-                elif magnitudes[i1] > self.p.th1 and magnitudes[i1] > magnitudes[i0]:
-                    print(1, end='')
+
+                """ if len(subsymbols) < subsymbol_count:
+                    get_size = subsymbol_count - len(subsymbols)
+                elif subsymbols == invalids:
+                    buffer.put(-1)
+                    get_size = subsymbol_count
+                elif subsymbols.count(-1)
+
+                for _ in range(get_size): """
+
+                block = stream.read(self.__properties.block_size)[0]
+
+                magnitudes = abs(np.fft.rfft(block[:, 0])[:self.__properties.block_size // 2])
+
+                if magnitudes[i0] > self.__th0 and magnitudes[i0] >= magnitudes[i1]:
+                    subsymbols.append(0)
+                elif magnitudes[i1] > self.__th1 and magnitudes[i1] > magnitudes[i0]:
+                    subsymbols.append(1)
                 else:
-                    print(' ', end='')
-                sys.stdout.flush()
+                    subsymbols.append(-1)
+
+                buffer.put(subsymbols.popleft())
+
 
     def stop(self):
         self.__stop = True
-
