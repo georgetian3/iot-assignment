@@ -23,10 +23,12 @@ def parse_args():
 def main():
     #app.run(debug=False, port=8000)
 
-    #print(sd.query_devices())
-    #print(sd.query_devices(1))
+    """ print(sd.query_devices())
+    print(sd.query_devices(1))
 
-    #print(sd.query_devices(3))
+    print(sd.query_devices(3))
+
+    exit() """
 
     """ print(sd.check_output_settings(3, 1, samplerate=384000))
     print(sd.check_input_settings(1, 1, samplerate=384000))
@@ -35,36 +37,38 @@ def main():
     exit() """
 
     p = SoundProperties(
-        f0=12000,
-        f1=13000,
+        f0=8000,
+        f1=10000,
         sample_rate=384000,
-        symbol_duration=0.05,
-        block_size=2 ** 9,
-        blocks_per_symbol=2 ** 4,
+        block_size=2 ** 8,
+        blocks_per_symbol=8,
     )
 
     bitrate = p.sample_rate / (p.block_size * p.blocks_per_symbol)
-    print('Bitrate:', bitrate, 'bits/second')
+    print('Bitrate:', bitrate, 'symbols/second')
+
+    waves_per_symbol = min(p.f0, p.f1) / bitrate
+    print('Min waves per symbol:', waves_per_symbol)
 
     args = parse_args()
     buffer = Queue()
 
     m = Modulator(p)
-    d = Demodulator(p, th0=2, th1=2)
+    d = Demodulator(p, th0=1, th1=1)
 
 
-    data = [1, 0] * 40
+    data = [1, 1, 0] * 40
 
     if args.r:
         d.demodulate(buffer)
 
     if args.s:
-        m.play(m.modulate(data), blocking=True)
+        m.play(m.modulate(data), blocking=False)
 
+    input()
     
 
     if args.r:
-        input()
         d.stop()
         while not buffer.empty():
             bit = buffer.get()

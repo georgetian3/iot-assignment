@@ -3,6 +3,7 @@ import threading
 import numpy as np
 import sounddevice as sd
 from collections import deque
+from time import time
 
 from .soundproperties import SoundProperties
 
@@ -38,16 +39,12 @@ class Demodulator:
 
         subsymbol_count = 4
         
-        #block_size = int(self.__properties.sample_rate * self.__properties.symbol_duration / subsymbol_count)
         stream = sd.InputStream(
             samplerate=self.__properties.sample_rate,
-            #blocksize=block_size,
             blocksize=self.__properties.block_size,
             channels=1,
         )
 
-        #i0 = self.closest_frequency_index(block_size, self.__properties.sample_rate, self.__properties.f0)
-        #i1 = self.closest_frequency_index(block_size, self.__properties.sample_rate, self.__properties.f1)
         i0 = self.closest_frequency_index(self.__properties.block_size, self.__properties.sample_rate, self.__properties.f0)
         i1 = self.closest_frequency_index(self.__properties.block_size, self.__properties.sample_rate, self.__properties.f1)
 
@@ -55,6 +52,9 @@ class Demodulator:
         subsymbols = deque(maxlen=subsymbol_count)
         invalids = deque([-1] * subsymbol_count)
 
+
+        self.__all = 0
+        self.__wait = 0
         self.__stop = False
         with stream:
             while not self.__stop:
@@ -68,7 +68,13 @@ class Demodulator:
 
                 for _ in range(get_size): """
 
+                start = time()
+
                 block = stream.read(self.__properties.block_size)[0]
+
+                after_wait = time()
+
+                self.__wait += after_wait - start
 
                 magnitudes = abs(np.fft.rfft(block[:, 0])[:self.__properties.block_size // 2])
 
@@ -81,6 +87,9 @@ class Demodulator:
 
                 buffer.put(subsymbols.popleft())
 
+                self.__all += time() - start
+
 
     def stop(self):
         self.__stop = True
+        print(self.__all, self.__wait)
