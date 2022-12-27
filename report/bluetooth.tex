@@ -1,0 +1,33 @@
+\section{声波信号模拟蓝牙通}
+
+\subsection{实现}
+
+此项目中采取了类似于计算机网络的层次化设计，即为上一层提供接口并且调用下一层的接口。
+
+\subsubsection{蓝牙包格式}
+
+此作业中的蓝牙包的格式由以下三个部分组成：
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{ccc}\toprule
+        字段 & 长度（字节）& 内容 \\\midrule
+        前导码 & $1$ & \code{10101010} \\
+        数据长度 & $1$ & 数据的长度，取值范围为 \code{0-255} \\
+        数据 & $0 - 255$ & 数据本身 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\subsubsection{\code{SoundProperties}}
+
+\code{SoundProperties} 类在 \fileref{modem/soundproperties.py} 中实现。它为调制器与解调器提供参数，其中包括声音频率的数组 \code{frequencies}、采样率 \code{sample_rate}、区块的大小 \code{block_size} 以及一个符号中的区块个数 \code{blocks_per_symbol}。则一个符号中的样本数量为 \code{block_size * blocks_per_symbol}，而一个符号的时长为 \code{block_size * blocks_per_symbol / sample_rate}。以下的章节中会介绍各项的用途。
+
+\subsubsection{调制器}
+
+调制器由 \fileref{modem/modulator.py} 中的 \code{Modulator} 类实现。它通过频移键控进行信号调制，即每一个符号由不同频率的、在 \code{SoundProperties} 中定义的正弦声波表示。其中频率的个数必须为 2 的幂数，从而第 $i = 0, 1,\cdots,n-1$ 个频率表示的序列为 $i$ 的二进制表示。特别的，若定义了两个频率，则第一个频率表示 0，第二个频率表示 1。
+
+\subsubsection{解调器}
+
+

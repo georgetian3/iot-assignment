@@ -1,116 +1,106 @@
-from modem.modulator import Modulator
-from modem.demodulator import Demodulator
-from modem.soundproperties import SoundProperties
-from bluetooth.bluetooth import BluetoothSender, BluetoothReceiver
-import bluetooth.utils as utils
-from time import time, sleep
-from queue import Queue
-import threading
-import sys
-#from routes import app
-import sounddevice as sd
 import argparse
-import random
+from app.app import app
+from bluetooth.main import sender, receiver, modulator, demodulator, encoder, decoder
+import bluetooth.test
+import distance.test
+import sys
+from time import sleep
+from bitarray import bitarray
 
 def parse_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-s', action='store_true')
-    parser.add_argument('-r', action='store_true')
+    group = parser.add_mutually_exclusive_group(required=True)
+
+    group.add_argument('--gui', action='store_true')
+
+    group.add_argument('--test_bluetooth_sender', action='store_true')
+    group.add_argument('--test_distance_sender', action='store_true')
+
+    group.add_argument('--test_bluetooth_receiver', action='store_true')
+    group.add_argument('--test_distance_receiver', action='store_true')
+
     args = parser.parse_args()
     return args
 
-
 def main():
-    #app.run(debug=False, port=8000)
-
-    """ print(sd.query_devices())
-    print(sd.query_devices(1))
-
-    print(sd.query_devices(3))
-
-    exit() """
-
-    """ print(sd.check_output_settings(3, 1, samplerate=384000))
-    print(sd.check_input_settings(1, 1, samplerate=384000))
-
-
-    exit() """
-
-    p = SoundProperties(
-        f0=8000,
-        f1=10000,
-        sample_rate=384000,
-        block_size=2 ** 8,
-        blocks_per_symbol=8,
-    )
-
-    bitrate = p.sample_rate / (p.block_size * p.blocks_per_symbol)
-    print('Bitrate:', bitrate, 'symbols/second')
-
-    waves_per_symbol = min(p.f0, p.f1) / bitrate
-    print('Min waves per symbol:', waves_per_symbol)
-
     args = parse_args()
+
+    texts = ['教材名称：Elementary probability theory,教材出版社:Springer,出版时间:2003,版次:fourth Edition,主要编者:Kai Lai Chung and Farid AitSahlia,主编单位:,评价:很合适;', '1．Kai Lai Chung and Farid AitSahlia，Elementary probability theory, Springer, 2003, fourth Edition.（英文） 2．M. Spiegel，J. Schiller and R. Srinivasan, Probability and Statistics. (英文)', 'Open Office Hour成绩评定标准教师教学特色中文授课、英文教']
+
+    text = texts[0]
+    from queue import Queue, Empty
     buffer = Queue()
 
-    m = Modulator(p)
-    d = Demodulator(p, th0=1, th1=1)
+    #data = [1 if x == '1' else 0 for x in '1010101000000000001000001111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111010101010000000001000001111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111010101001000000001000001111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111010101011000000001000001111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111010101000100000001000001111010111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111']
+    #data = [1, 0, 1] * 100
+    #print(''.join(map(str, data)))
+    #print(text)
 
+    #for text in texts:
+    #print(''.join(map(str, data)))
 
-    data = [1, 1, 0] * 40
+    """ ba = bitarray()
+    ba.frombytes(text.encode('utf8'))
+    print(ba.to01())
+    data = list(ba) """
 
-    if args.r:
-        d.demodulate(buffer)
+    if args.test_bluetooth_sender:
+        
+        #modulator.modulate(data)
+        
+        #sender.send(ba)
+        encoder.encode(text, blocking=True)
+        input()
+    elif args.test_bluetooth_receiver:
+        #demodulator.demodulate(buffer)
+        #receiver.receive(buffer)
+        decoder.decode(blocking=True)
 
-    if args.s:
-        m.play(m.modulate(data), blocking=False)
-
-    input()
-    
-
-    if args.r:
-        d.stop()
+    #input()
+    if args.test_bluetooth_receiver:
+        """ receiver.stop()
+        #demodulator.stop()
+        received = []
         while not buffer.empty():
-            bit = buffer.get()
-            if bit == -1:
-                print(' ', end='')
-            else:
-                print(bit, end='')
-            sys.stdin.flush()
+            received.append(buffer.get())
+        if received[-1] == None:
+            received.pop()
+        print(len(received))
+        print(received == data)
+        print(bitarray(received).tobytes().decode('utf8')) """
+        try:
+            while decoder.running():
+                #print(decoder.get())
+                sleep(0.2)
+            print('DONE')
+            print(decoder.get())
+        except KeyboardInterrupt:
+            decoder.stop()
+
+
+
+
+
+
+
 
     return
-
-
-    """ sender = BluetoothSender(m)
-    receiver = BluetoothReceiver(d)
-
-
-
-    
-
-    text = 'test'
-
-
-    text_received = []
-
-    if args.r:
-        print('Receiving')
-        receiver.receive(buffer)
-        input()
-
-    if args.s:
-        print('Sending, bitrate:', )
-        sender.send(text, blocking=True)
-
-    if args.r:
-        while not buffer.empty():
-            bit = buffer.get(timeout=1)
-            if bit == -1:
-                bit = ' '
-            print(bit, end='')
-            sys.stdin.flush()
-        receiver.stop() """
-
+    if args.gui:
+        print('Running GUI')
+        app.run(debug=False, port=8000)
+    elif args.test_bluetooth_sender:
+        print('Running Bluetooth sender test')
+        tester = bluetooth.test.Tester(sender=sender)
+        tester.run()
+    elif args.test_bluetooth_receiver:
+        print('Running Bluetooth receiver test')
+        tester = bluetooth.test.Tester(receiver=receiver)
+        tester.run()
+    elif args.test_distance_sender:
+        print('Running distance sender test')
+        pass
+    elif args.test_distance_receiver:
+        print('Running distance receiver test')
 
 if __name__ == '__main__':
     main()
