@@ -64,7 +64,6 @@ class Demodulator:
             channels=1,
         )
 
-        self.__put_count = 0
 
         
 
@@ -128,20 +127,10 @@ class Demodulator:
                     #print(str(subsymbol) * count, end='', flush=True)
                     for _ in range(count):
                         buffer.put(subsymbol)
-                    if max_freq_index != -1:
-                        self.__put_count += count
-                    print('Put count:', self.__put_count, flush=True)
                     count = 0
                 subsymbol = max_freq_index
                 count += 1
-        print('Demodulator returning')
-
-    def running(self) -> bool:
-        return self.__thread and self.__thread.is_alive()
-                
 
     def stop(self):
-        print('Stopping Demodulator', flush=True)
         self.__stream.abort()
         self.__thread.join()
-        print('Stopped Demodulator', flush=True)

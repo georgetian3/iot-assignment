@@ -46,19 +46,18 @@ def main():
 
     if args.test_bluetooth_sender:
         
-        #modulator.modulate(data)
+        modulator.modulate(data)
         
-        sender.send(ba)
+        #sender.send(ba)
         #encoder.encode(text, blocking=True)
         input()
     elif args.test_bluetooth_receiver:
-        #demodulator.demodulate(buffer)
-        receiver.receive(buffer)
+        demodulator.demodulate(buffer)
+        #receiver.receive(buffer)
         #decoder.decode(blocking=True)
 
     #input()
     if args.test_bluetooth_receiver:
-        #demodulator.stop()
         received = []
         while True:
             bit = buffer.get()
@@ -70,6 +69,7 @@ def main():
         print(len(received))
         print(received == data)
         print(bitarray(received).tobytes().decode('utf8'))
+        demodulator.stop()
         """ try:
             while decoder.running():
                 print(decoder.get())
