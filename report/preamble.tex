@@ -2,14 +2,11 @@
 \usepackage{mathtools}
 \usepackage{multicol}
 \usepackage{enumitem}
-\usepackage{hyperref}
-\usepackage{graphicx}
-\usepackage{tikz}
+\usepackage[colorlinks=true]{hyperref}
+\usepackage{bookmark}
 \usepackage{ctex}
 \usepackage{listings}
 \usepackage{booktabs}
-\usepackage{subcaption}
-\usepackage[space]{grffile}
 \newcommand{\code}[1]{\lstinline`#1`}
 \lstset{
     language=C,
@@ -23,6 +20,8 @@
     numbersep=10pt,
     mathescape=true,
 }
-
 \usepackage{csquotes}
 \MakeOuterQuote{"}
+
+\newcommand{\repourl}{https://github.com/georgetian3/iot-assignment/blob/main/src/}
+\newcommand{\fileref}[1]{\href{\repourl#1}{\code{#1}}}

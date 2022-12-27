@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block heading %}声波信号模拟蓝牙通信{% endblock %}
+
+{% block main %}
+
+<script>
+
+  async function play() {
+    str = document.getElementById('text').value;
+    await fetch('/sender', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({action: 'play', text: str}),
+    });
+  }
+
+  async function stop_play() {
+    await fetch('/sender', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({action: 'stop'}),
+    });
+  }
+
+  var listen_loop = true;
+
+  async function listen() {
+
+    result = document.getElementById('text-received');
+    result.innerText = '----- START TRANSMISSION -----\n';
+
+    const response = await fetch('/receiver', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({action: 'receive'}),
+    });
+    console.log(response);
+
+    listen_loop = true;
+    while (listen_loop) {
+      const response = await fetch('/receiver', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({action: 'read'}),
+      });
+      result.innerText += await response.text();
+      if (response.status == 400) {
+        result.innerText += '\n----- END TRANSMISSION -----';
+      }
+
+      await new Promise(r => setTimeout(r, 500));
+    }
+  }
+
+  async function stop_listen() {
+    listen_loop = false
+    const response = await fetch('/receiver', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({action: 'stop'}),
+      });
+    console.log(response);
+  }
+
+</script>
+
+
+<div id="send">
+  <label>ASCII 字符串</label>
+  <textarea class="form-control" id="text" rows="3"></textarea>
+  <br>
+  <button type="submit" class="btn btn-primary" onclick="play()">播放</button>
+  <button type="submit" class="btn btn-primary" onclick="stop_play()">停止</button>
+</div>
+
+<br><br>
+
+<div id="receive">
+  <label>ASCII 字符串</label>
+  <pre style="background-color: #DDDDDD; padding: 10px; white-space: pre-wrap;">
+<code id="text-received"></code></pre>
+  <br>
+  <button type="submit" class="btn btn-primary" onclick="listen()">接收</button>
+  <button type="submit" class="btn btn-primary" onclick="stop_listen()">停止</button>
+</div>
+
+
+{% endblock %}
