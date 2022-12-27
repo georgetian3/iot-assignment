@@ -27,7 +27,7 @@ def main():
 
     texts = ['教材名称：Elementary probability theory,教材出版社:Springer,出版时间:2003,版次:fourth Edition,主要编者:Kai Lai Chung and Farid AitSahlia,主编单位:,评价:很合适;', '1．Kai Lai Chung and Farid AitSahlia，Elementary probability theory, Springer, 2003, fourth Edition.（英文） 2．M. Spiegel，J. Schiller and R. Srinivasan, Probability and Statistics. (英文)', 'Open Office Hour成绩评定标准教师教学特色中文授课、英文教']
 
-    text = texts[0]
+    text = 'test' #texts[0]
     from queue import Queue, Empty
     buffer = Queue()
 
@@ -39,43 +39,45 @@ def main():
     #for text in texts:
     #print(''.join(map(str, data)))
 
-    """ ba = bitarray()
+    ba = bitarray()
     ba.frombytes(text.encode('utf8'))
     print(ba.to01())
-    data = list(ba) """
+    data = list(ba)
 
     if args.test_bluetooth_sender:
         
         #modulator.modulate(data)
         
-        #sender.send(ba)
-        encoder.encode(text, blocking=True)
+        sender.send(ba)
+        #encoder.encode(text, blocking=True)
         input()
     elif args.test_bluetooth_receiver:
         #demodulator.demodulate(buffer)
-        #receiver.receive(buffer)
-        decoder.decode(blocking=True)
+        receiver.receive(buffer)
+        #decoder.decode(blocking=True)
 
     #input()
     if args.test_bluetooth_receiver:
-        """ receiver.stop()
         #demodulator.stop()
         received = []
-        while not buffer.empty():
-            received.append(buffer.get())
-        if received[-1] == None:
-            received.pop()
+        while True:
+            bit = buffer.get()
+            print(bit, end='', flush=True)
+            if bit == None:
+                break
+            received.append(bit)
+        receiver.stop()
         print(len(received))
         print(received == data)
-        print(bitarray(received).tobytes().decode('utf8')) """
-        try:
+        print(bitarray(received).tobytes().decode('utf8'))
+        """ try:
             while decoder.running():
-                #print(decoder.get())
+                print(decoder.get())
                 sleep(0.2)
             print('DONE')
             print(decoder.get())
         except KeyboardInterrupt:
-            decoder.stop()
+            decoder.stop() """
 
 
 

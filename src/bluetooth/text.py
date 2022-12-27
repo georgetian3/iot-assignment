@@ -2,6 +2,7 @@ from queue import Queue, Empty
 from .bluetooth import BluetoothSender, BluetoothReceiver
 import threading
 from bitarray import bitarray
+from multiprocessing import Queue
 
 class TextEncoder:
     def __init__(self, sender: BluetoothSender, encoding='utf8'):
@@ -25,10 +26,12 @@ class TextDecoder:
         
         
     def decode(self, blocking: bool=False):
+
+        if self.running():
+            raise ValueError('`decode` already started')
             
         if not blocking:
-            if self.__thread and self.__thread.is_alive():
-                raise ValueError('`decode` already started')
+            
             self.__thread = threading.Thread(target=self.decode, args=(True,))
             self.__thread.start()
             return
@@ -49,11 +52,12 @@ class TextDecoder:
             print('text decode got bit')
             if bit == None:
                 print('received none bit')
-                self.__running = False
+                break
             else:
                 self.__bits.append(bit)
 
     def get(self):
+        print('getting text')
         try:
             self.__text = self.__bits.tobytes().decode(self.__encoding)
         except UnicodeDecodeError:

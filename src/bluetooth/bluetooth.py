@@ -5,6 +5,7 @@ from typing import Iterable
 from bluetooth.modem import Modulator, Demodulator
 from bitarray import bitarray
 from bitarray.util import int2ba
+import time
 
 
 class BluetoothSender:
@@ -50,31 +51,32 @@ class BluetoothSender:
 class BluetoothReceiver:
     def __init__(self, demodulator: Demodulator):
         self.__demodulator = demodulator
-        self.__thread = None
-        in_buffer = Queue()
+        self.__thread = threading.Thread()
 
     def receive(self, out_buffer: Queue, blocking: bool=False) -> None:
-        if not blocking and self.__thread and self.__thread.is_alive():
-            raise Exception('`receive` already started')
         if not blocking:
             self.__thread = threading.Thread(target=self.receive, args=(out_buffer, True))
             self.__thread.start()
             return
+
+        print('receiver starting')
 
         in_buffer = Queue()
         self.__demodulator.demodulate(in_buffer)
 
 
         def get_bit():
-            while self.__running:
+            while True:
                 try:
-                    bit = in_buffer.get(timeout=0.1)
+                    bit = in_buffer.get_nowait()
                     if bit == -1:
                         return 0
                     return bit
+
                 except Empty:
-                    print('timed out')
-                    continue
+                    time.sleep(0.1)
+
+
         
         def get_byte():
             byte = 0
@@ -109,26 +111,22 @@ class BluetoothReceiver:
             payload_length = get_byte() + 1
             print('Payload length:', payload_length)
             for i in range(payload_length):
-                print('getting ', i, 'th bit')
                 bit = get_bit()
-                print('got ', i, 'th bit')
-                #print(bit, end='', flush=True)
+                #print(i, end=' ', flush=True)
                 out_buffer.put(bit)
             print('Finished packet')
             print(flush=True)
 
-        print('out---------------')
         self.__demodulator.stop()
         print('putting none')
         out_buffer.put(None)
         self.__running = False
 
-    def running(self) -> bool:
-        return self.__thread and self.__thread.is_alive()
 
     def stop(self):
+        print('Stopping BluetoothReceiver')
         self.__running = False
-        if self.running():
-            self.__thread.join()
-        self.__demodulator.stop()
+        self.__thread.join()
+        print('Stopped BluetoothReceiver')
+
 

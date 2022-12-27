@@ -57,12 +57,14 @@ class Demodulator:
             raise ValueError('Number of thresholds must match the number of frequencies')
         self.__properties = properties
         self.__thresholds = thresholds
-        self.__thread = None
+        self.__thread = threading.Thread()
         self.__stream = sd.InputStream(
             samplerate=self.__properties.sample_rate,
             blocksize=self.__properties.block_size,
             channels=1,
         )
+
+        self.__put_count = 0
 
         
 
@@ -86,7 +88,6 @@ class Demodulator:
 
     def demodulate(self, buffer: Queue, blocking: bool=False):
         if not blocking:
-            self.stop()
             self.__thread = threading.Thread(target=self.demodulate, args=(buffer, True))
             self.__thread.start()
             return
@@ -126,9 +127,10 @@ class Demodulator:
                     count = round(count / self.__properties.blocks_per_symbol)
                     #print(str(subsymbol) * count, end='', flush=True)
                     for _ in range(count):
-                        print('before put modem')
                         buffer.put(subsymbol)
-                        print('after put modem')
+                    if max_freq_index != -1:
+                        self.__put_count += count
+                    print('Put count:', self.__put_count, flush=True)
                     count = 0
                 subsymbol = max_freq_index
                 count += 1
@@ -141,5 +143,5 @@ class Demodulator:
     def stop(self):
         print('Stopping Demodulator', flush=True)
         self.__stream.abort()
-        if self.running():
-            self.__thread.join()
+        self.__thread.join()
+        print('Stopped Demodulator', flush=True)
