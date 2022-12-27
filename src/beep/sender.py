@@ -14,7 +14,7 @@ class ThreadWithReturnValue(Thread):
         super(ThreadWithReturnValue,self).join()
         return self._return
 socket_server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-host = '127.0.0.1'	
+host = ''
 port = 2333
 socket_server.bind((host,port))
 socket_server.listen(5)
@@ -48,16 +48,19 @@ if __name__ == '__main__':
 
         z1 = scipy.signal.chirp(t,f1,T,f2)
         z2 = scipy.signal.chirp(t,f2,T,f3)
-        # z1 = z1[::-1]
-        # z2 = z2[::-1]
+        z1 = z1[::-1]
+        z2 = z2[::-1]
         print(data.shape,z1.shape)
         psub = receive_time()
         psub = psub/fs
-        p1 = np.max(np.convolve(data.reshape(-1),z1.reshape(-1),'valid'))
-        p2 = np.max(np.convolve(data.reshape(-1),z2.reshape(-1),'valid'))
+        c1 = np.convolve(data.reshape(-1),z1.reshape(-1),'valid')
+        p1 = np.argmax(c1)
+        p2 = np.argmax(np.convolve(data.reshape(-1),z2.reshape(-1),'valid'))
+        print(p2-p1)
         p1 = (p1-1)/fs
         p2 = (p2-1)/fs
 
         dAA = 0.2
         dBB = 0.2
+        print(p1,p2,psub)
         print(343 / 2 * (p2 - p1 - psub) + dAA + dBB)

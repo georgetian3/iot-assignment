@@ -36,7 +36,7 @@ if __name__ == '__main__':
         f2 = 6000
         f3 = 8000
         t = np.linspace(0,T,round(fs*T))
-        y = scipy.signal.chirp(t,f1,T,f2)
+        y = scipy.signal.chirp(t,f2,T,f3)
         r = recorder.waveRecorder(fs,3)
         thread = ThreadWithReturnValue(target=r.record)
         thread.start()
@@ -45,6 +45,8 @@ if __name__ == '__main__':
         data , _ = thread.join()
         z1 = scipy.signal.chirp(t,f1,T,f2)
         z2 = scipy.signal.chirp(t,f2,T,f3)
+        z1 = z1[::-1]
+        z2 = z2[::-1]
         p1 = np.max(np.convolve(data.reshape(-1),z1.reshape(-1),'valid'))
         p2 = np.max(np.convolve(data.reshape(-1),z2.reshape(-1),'valid'))
         print(p2-p1)
