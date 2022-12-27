@@ -34,6 +34,7 @@ class Modulator:
         if not blocking:
             Thread(target=self.play, args=(wave, True), daemon=True).start()
             return
+
         sd.play(wave, samplerate=self.p.sample_rate)
 
     def stop(self):
