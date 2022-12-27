@@ -104,29 +104,28 @@ class BluetoothReceiver:
             # find 8 bit packet count
             packet_count = get_byte()
             if packet_sequence_number >= packet_count:
-                print('last packet')
+                #print('last packet')
                 last_packet = True
             #print('Packet count:', packet_count)
             # find 8 bit payload length
             payload_length = get_byte() + 1
-            print('Payload length:', payload_length)
+            #print('Payload length:', payload_length)
             for i in range(payload_length):
                 bit = get_bit()
                 #print(i, end=' ', flush=True)
                 out_buffer.put(bit)
-            print('Finished packet')
-            print(flush=True)
-
+            #print('Finished packet')
+            #print(flush=True)
         self.__demodulator.stop()
-        print('putting none')
         out_buffer.put(None)
         self.__running = False
 
 
     def stop(self):
-        print('Stopping BluetoothReceiver')
         self.__running = False
-        self.__thread.join()
-        print('Stopped BluetoothReceiver')
+        try:
+            self.__thread.join()
+        except RuntimeError:
+            pass
 
 

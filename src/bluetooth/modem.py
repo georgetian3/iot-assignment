@@ -64,24 +64,6 @@ class Demodulator:
             channels=1,
         )
 
-
-        
-
-    def __closest_frequency_index(self, block_size, sample_rate, target_freq):
-
-        deltas = float('inf')
-        closest = -1
-
-        frequencies = np.fft.fftfreq(block_size, 1 / sample_rate)[:block_size // 2]
-        #print(list(frequencies))
-
-        for i in range(len(frequencies)):
-            if abs(frequencies[i] - target_freq) < deltas:
-                deltas = abs(frequencies[i] - target_freq)
-                closest = i
-
-        return closest
-
     def get_fft_frequencies(self):
         return np.fft.fftfreq(self.__properties.block_size, 1 / self.__properties.sample_rate)[:self.__properties.block_size // 2]
 
@@ -133,4 +115,7 @@ class Demodulator:
 
     def stop(self):
         self.__stream.abort()
-        self.__thread.join()
+        try:
+            self.__thread.join()
+        except RuntimeError:
+            pass
