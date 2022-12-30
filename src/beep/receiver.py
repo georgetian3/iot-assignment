@@ -6,6 +6,7 @@ import recorder
 from threading import Thread
 from scipy.io import wavfile
 import time
+import matplotlib.pyplot as plt
 client = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
 host = "127.0.0.1"
 port = 2333
@@ -40,7 +41,7 @@ if __name__ == '__main__':
         r = recorder.waveRecorder(fs,3)
         thread = ThreadWithReturnValue(target=r.saveWave)
         thread.start()
-        time.sleep(1.5)
+        time.sleep(1)
         sd.play(y, fs,blocking=True)
         data = thread.join()
         z1 = scipy.signal.chirp(t,f1,T,f2)
@@ -49,6 +50,14 @@ if __name__ == '__main__':
         z2 = z2[::-1]
         p1 = np.argmax(np.convolve(data.reshape(-1),z1.reshape(-1),'valid'))
         p2 = np.argmax(np.convolve(data.reshape(-1),z2.reshape(-1),'valid'))
-        print(p2-p1)
+        print(data.shape)
+        plt.plot(data.reshape(-1))
+        plt.axvline(p1,c='r')
+        plt.axvline(p2)
+        plt.show()
+        print(343*p1/fs)
+        print(p2,p1)
+        print((p2-p1)/fs)
+	
         sendTime(p2-p1)
         client.close()
