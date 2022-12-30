@@ -1,6 +1,7 @@
 import argparse
 from app.app import app
-from bluetooth.main import properties, modulator, demodulator, buffer, exam_sender, exam_receiver
+from bluetooth.main import properties, modulator, demodulator, buffer
+from bluetooth.exam import exam_receiver, exam_sender
 import bluetooth.test
 import distance.test
 
