@@ -40,7 +40,8 @@ class Modulator:
                 symbol = 0
                 i = 0
 
-        #print(''.join(map(str, symbols)))
+        #print('Modulating:')
+        print(''.join(map(str, symbols)))
 
         wave = np.concatenate(tuple(self.waves[symbol]for symbol in symbols))
         self.stop()
@@ -69,10 +70,10 @@ class Demodulator:
 
     def demodulate(self, buffer: Queue, blocking: bool=False):
         if not blocking:
-            self.__thread = threading.Thread(target=self.demodulate, args=(buffer, True))
+            self.__thread = threading.Thread(target=self.demodulate, args=(buffer, True), daemon=True)
             self.__thread.start()
             return
-        
+        bits = []
         freq_indexes = tuple(np.where(np.isclose(self.get_fft_frequencies(), freq))[0][0] for freq in self.__properties.frequencies)
 
         #print('Freq indexes:', freq_indexes)
@@ -81,6 +82,8 @@ class Demodulator:
 
         subsymbol = -1
         count = 0
+
+        found_nonneg = False
 
         try:
             self.__stream.start()
@@ -113,10 +116,16 @@ class Demodulator:
 
             if count > 0 and max_freq_index != subsymbol:
                 count = round(count / self.__properties.blocks_per_symbol)
+                print(str(subsymbol) * count, end='', flush=True)
                 if subsymbol != -1:
-                    print(str(subsymbol) * count, end='', flush=True)
+                    found_nonneg = True
+                    bits.extend([subsymbol] * count)
+                elif found_nonneg: 
+                    print('found nonneg')
+                    return bits
                 for _ in range(count):
-                    buffer.put(subsymbol)
+                    pass
+                    #buffer.put(subsymbol)
                 count = 0
             subsymbol = max_freq_index
             count += 1

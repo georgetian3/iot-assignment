@@ -24,36 +24,31 @@ def run_modulator(repeats=10):
     with open('tests.txt') as f:
         bits = bitarray(f.read())
     
-    #bits = bitarray([1, 1, 1, 0] * 1000)
-    print('Sending:', bits)
-    for i in range(repeats):
-
-        print(f'Trial {i + 1} / {repeats}: modulating...', end='', flush=True)
-        modulator.modulate(bits, blocking=True)
-        print('done. Press enter to continue', end='')
-        input()
-    print('All trials completed')
+    bits = bitarray([1, 0] * 100)
+    print('Sending:', bits.to01())
+    print('Modulating...', end='', flush=True)
+    modulator.modulate(bits, blocking=True)
+    print('done')
 
 
 
-def run_demodulator(repeats=10):
-    print('Testing as demodulator, ')
+
+def run_demodulator():
+    print('Testing as demodulator')
     with open('tests.txt') as f:
         correct = f.read().strip()
     print('Correct:', correct)
-    for i in range(repeats):
 
-        buffer = Queue()
-        demodulated = ''
-        print(f'Trial {i + 1}: demodulating, press ctrl + c to end current trial...', end='', flush=True)
-        demodulator.demodulate(buffer)
-        time.sleep(bitrate * (len(correct) * 1.5))
-        demodulator.stop()
-        while not buffer.empty():
-            bit = buffer.get()
-            if bit in (0, 1):
-                demodulated += str(bit)
-        packet_loss = 1 - len(demodulated) / len(correct)
-        error_rate = 1 - Levenshtein.ratio(demodulated, correct)
-        print(f'done: packet loss {packet_loss}, error rate {error_rate}')
-    print('All trials completed')
+    buffer = Queue()
+    demodulated = ''
+    print('Demodulating, press ctrl + c to stop...', end='', flush=True)
+    demodulator.demodulate(buffer)
+    input()
+    demodulator.stop()
+    while not buffer.empty():
+        bit = buffer.get()
+        if bit in (0, 1):
+            demodulated += str(bit)
+    packet_loss = 1 - len(demodulated) / len(correct)
+    error_rate = 1 - Levenshtein.ratio(demodulated, correct)
+    print(f'done: packet loss {packet_loss}, error rate {error_rate}')
