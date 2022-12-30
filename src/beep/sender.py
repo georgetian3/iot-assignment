@@ -51,14 +51,11 @@ if __name__ == '__main__':
         z2 = scipy.signal.chirp(t,f2,T,f3)
         z1 = z1[::-1]
         z2 = z2[::-1]
-        print(data)
-        print(data.shape,z1.shape)
         psub = receive_time()
         psub = psub/fs
         c1 = np.convolve(data.reshape(-1),z1.reshape(-1),'valid')
         p1 = np.argmax(c1)
         p2 = np.argmax(np.convolve(data.reshape(-1),z2.reshape(-1),'valid'))
-        print(p2-p1)
 
         
         plt.plot(data.reshape(-1))
