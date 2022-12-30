@@ -3,10 +3,10 @@ import pyaudio
 import numpy as np
 import argparse
 class waveRecorder():
-    def __init__(self,sampleRate,duration):
+    def __init__(self,sampleRate,duration,filepath):
         self.sampleRate = sampleRate
         self.duration = duration
-        self.filepath = 'record.wav'
+        self.filepath = filepath
     def record(self):
         audio = pyaudio.PyAudio()
         stream = audio.open(format=pyaudio.paInt16,channels=1,rate=self.sampleRate,
