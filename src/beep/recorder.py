@@ -21,13 +21,13 @@ class waveRecorder():
         stream.close()
         width = audio.get_sample_size(pyaudio.paInt16)
         audio.terminate()
-        return np.frombuffer(b''.join(frames),dtype='<i2').reshape(-1,1),width
+        return frames,width 
     def saveWave(self):
         w=wave.open(self.filepath,'wb')
         frames,width=self.record()
-        w.setnchannels(2)
+        w.setnchannels(1)
         w.setsampwidth(width)
         w.setframerate(self.sampleRate)
         w.writeframes(b''.join(frames))
         w.close()
-
+        return  np.frombuffer(b''.join(frames),dtype='<i2').reshape(-1,1)

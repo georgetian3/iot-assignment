@@ -5,6 +5,7 @@ import sounddevice as sd
 import recorder
 from threading import Thread
 from scipy.io import wavfile
+import matplotlib.pyplot as plt
 class ThreadWithReturnValue(Thread):
     def run(self):
         if self._target is not None:
@@ -41,15 +42,16 @@ if __name__ == '__main__':
     y = scipy.signal.chirp(t,f1,T,f2)
     if(send_ready()):
         r = recorder.waveRecorder(fs,3)
-        thread = ThreadWithReturnValue(target=r.record)
+        thread = ThreadWithReturnValue(target=r.saveWave)
         thread.start()
         sd.play(y, fs,blocking=True)
-        data , _ = thread.join()
+        data  = thread.join()
 
         z1 = scipy.signal.chirp(t,f1,T,f2)
         z2 = scipy.signal.chirp(t,f2,T,f3)
         z1 = z1[::-1]
         z2 = z2[::-1]
+        print(data)
         print(data.shape,z1.shape)
         psub = receive_time()
         psub = psub/fs
@@ -57,9 +59,14 @@ if __name__ == '__main__':
         p1 = np.argmax(c1)
         p2 = np.argmax(np.convolve(data.reshape(-1),z2.reshape(-1),'valid'))
         print(p2-p1)
+
+        
+        plt.plot(data.reshape(-1))
+        plt.axvline(p1,c='r')
+        plt.axvline(p2)
+        plt.show()
         p1 = (p1-1)/fs
         p2 = (p2-1)/fs
-
         dAA = 0.2
         dBB = 0.2
         print(p1,p2,psub)
