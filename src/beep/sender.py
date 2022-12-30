@@ -51,17 +51,17 @@ if __name__ == '__main__':
         z2 = scipy.signal.chirp(t,f2,T,f3)
         z1 = z1[::-1]
         z2 = z2[::-1]
-        psub = receive_time()
-        psub = psub/fs
+
         c1 = np.convolve(data.reshape(-1),z1.reshape(-1),'valid')
         p1 = np.argmax(c1)
         p2 = np.argmax(np.convolve(data.reshape(-1),z2.reshape(-1),'valid'))
 
-        
+        psub = receive_time()
+        psub = psub/fs
         plt.plot(data.reshape(-1))
         plt.axvline(p1,c='r')
         plt.axvline(p2)
-        plt.show()
+        plt.savefig('sender.png')
         p1 = (p1-1)/fs
         p2 = (p2-1)/fs
         dAA = 0.2
