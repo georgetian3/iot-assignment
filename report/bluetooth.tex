@@ -1,33 +1,50 @@
-\section{声波信号模拟蓝牙通}
+\section{声波信号模拟蓝牙通信}
 
 \subsection{实现}
 
-此项目中采取了类似于计算机网络的层次化设计，即为上一层提供接口并且调用下一层的接口。
+所有有关蓝牙通信的文件存放在 \fileref{bluetooth/} 文件夹下。此项目中采取了类似于计算机网络的层次化设计，即为上一层提供接口并且调用下一层的接口。
 
-\subsubsection{蓝牙包格式}
+\subsubsection{调制器与解调器}
 
-此作业中的蓝牙包的格式由以下三个部分组成：
+调制器与解调器分别由 \fileref{bluetooth/modem.py} 中的 \code{Modulator} 和 \code{Demodulator} 类实现，其功能对应计算机网络中的物理层。调制器与解调器能够和协调地运行的前提是它们共享有关声波的属性的信息。以便于将同样的信息传到两类中，类在 \fileref{bluetooth/soundproperties.py} 中实现了 \code{SoundProperties} 类保存所有参数。其中包括声音频率的数组 \code{frequencies}、采样率 \code{sample_rate}、区块的大小 \code{block_size} 以及一个符号中的区块个数 \code{blocks_per_symbol}。
+
+调制器通过频移键控进行信号调制，即每一个符号由不同频率的、在 \code{SoundProperties} 中定义的正弦声波表示。其中频率的个数必须为二的幂数，从而第 $i = 0, 1,\cdots,n-1$ 个频率表示的序列为 $i$ 的二进制表示。特别的，若定义了两个频率，则第一个频率表示 0，第二个频率表示 1。给调制器输入一序列比特后它将合并相邻的比特形成一个符号，比如 \code{10} 对应着第三个频率的声波（若只有两个频率则无需合并）。一个符号中的样本数量为 \code{block_size * blocks_per_symbol}，而一个符号的时长为 \code{block_size * blocks_per_symbol / sample_rate}。最后将所有符号的声波通过扬声器播放。
+
+解调器的参数包括用户提供的缓冲队列与对应着 \code{SoundProperties} 中每个频率的强度的临界值。它每次从录影器获取一个区块，即 \code{block_size} 个样本，并运行 \code{numpy} 包的 FFT 算法，最后判断每个频率的强度是否大于临界值，从而得出这个区块所表示的符号。在测试过程中发现：解调错的区块出现在两个符号的边界之间，而不是一个符号的中间。比如在理想的解调情况下，若 \code{blocks_per_symbol = 4}，则两个符号 \code{10} 所产生的区块是 \code{11110000}。但真正解调的过程中会出现 \code{11100000} 或 \code{11111000}，但不会出现 \code{11011000}。利用这个特征，解调算法连续获取区块，直到获取到与前一个区块的符号不同的区块。这时将之前相同符号的区块所表示的符号放入缓冲队列。以下的例子（依然假设 \code{blocks_per_symbol = 4}）展示了以上算法。
+
+\begin{lstlisting}
+时间                 a                  b       c     d
+区块表示的符号 0000 0111 1111 1111 1111 0000 0001 1111
+加入缓冲的符号       0                  1111    00    1
+\end{lstlisting}
+
+在时间 \code{a} 前所有符号为 \code{0}，在时间 \code{a} 遇到了 \code{1}，则将之前的 5 个 \code{0} 近似到最近的整个符号，即 $5\div 4\approx 1$。类似地，在时间 \code{b} 会将之前的 15 个 \code{1} 近似为 4 个 \code{1} 符号。
+
+\newpage
+
+\subsubsection{蓝牙发送器与接收器}
+
+此项目中使用的蓝牙包格式如下：
 
 \begin{table}[h!]
     \centering
     \begin{tabular}{ccc}\toprule
         字段 & 长度（字节）& 内容 \\\midrule
-        前导码 & $1$ & \code{10101010} \\
-        数据长度 & $1$ & 数据的长度，取值范围为 \code{0-255} \\
-        数据 & $0 - 255$ & 数据本身 \\
+        前导码 & $1$ & \code{10101010} \\\midrule
+        序号 & $1$ & 此蓝牙包的序号，取值范围为 \code{0-255} \\\midrule
+        最大序号 & $1$ & \makecell{此次传输中最大的序号，取值范围为 \code{0-255}\\当序号等于最大序号，接收者得知传输完毕} \\\midrule
+        数据长度 & $1$ & \makecell{数据的长度减一，取值范围为 \code{0-255}\\即不允许不包含数据的包} \\\midrule
+        数据 & $1 - 256$ & 数据本身 \\
         \bottomrule
     \end{tabular}
 \end{table}
 
-
-\subsubsection{\code{SoundProperties}}
-
-\code{SoundProperties} 类在 \fileref{modem/soundproperties.py} 中实现。它为调制器与解调器提供参数，其中包括声音频率的数组 \code{frequencies}、采样率 \code{sample_rate}、区块的大小 \code{block_size} 以及一个符号中的区块个数 \code{blocks_per_symbol}。则一个符号中的样本数量为 \code{block_size * blocks_per_symbol}，而一个符号的时长为 \code{block_size * blocks_per_symbol / sample_rate}。以下的章节中会介绍各项的用途。
-
-\subsubsection{调制器}
-
-调制器由 \fileref{modem/modulator.py} 中的 \code{Modulator} 类实现。它通过频移键控进行信号调制，即每一个符号由不同频率的、在 \code{SoundProperties} 中定义的正弦声波表示。其中频率的个数必须为 2 的幂数，从而第 $i = 0, 1,\cdots,n-1$ 个频率表示的序列为 $i$ 的二进制表示。特别的，若定义了两个频率，则第一个频率表示 0，第二个频率表示 1。
-
-\subsubsection{解调器}
+蓝牙发送器与接收器分别由 \fileref{bluetooth/bluetooth.py} 中的 \code{BluetoothSender} 和 \code{BluetoothReceiver} 类实现，其功能对应计算机网络中的传输层。发送器负责将输入的比特序列分段，在蓝牙包中封装并将蓝牙包的比特序列传给调制器。接收器再调用解调器获取比特序列
 
 
+\subsubsection{字符串编码器与解码器}
+
+
+
+
+\subsection{测试}

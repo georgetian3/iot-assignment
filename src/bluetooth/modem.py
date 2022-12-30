@@ -64,25 +64,6 @@ class Demodulator:
             channels=1,
         )
 
-        self.__put_count = 0
-
-        
-
-    def __closest_frequency_index(self, block_size, sample_rate, target_freq):
-
-        deltas = float('inf')
-        closest = -1
-
-        frequencies = np.fft.fftfreq(block_size, 1 / sample_rate)[:block_size // 2]
-        #print(list(frequencies))
-
-        for i in range(len(frequencies)):
-            if abs(frequencies[i] - target_freq) < deltas:
-                deltas = abs(frequencies[i] - target_freq)
-                closest = i
-
-        return closest
-
     def get_fft_frequencies(self):
         return np.fft.fftfreq(self.__properties.block_size, 1 / self.__properties.sample_rate)[:self.__properties.block_size // 2]
 
@@ -119,6 +100,9 @@ class Demodulator:
                     if delta > max_delta:
                         max_delta = delta
                         max_freq_index = i
+
+                # at this point `max_freq_index` is equal to the symbol
+
                 #if max_freq_index != -1:
                     #print(list(magnitudes))
                     #print(' '.join(str(round(magnitudes[freq_indexes[i]], 2)).ljust(4, '0').rjust(6, ' ') for i in range(len(freq_indexes))), flush=True)
@@ -128,20 +112,13 @@ class Demodulator:
                     #print(str(subsymbol) * count, end='', flush=True)
                     for _ in range(count):
                         buffer.put(subsymbol)
-                    if max_freq_index != -1:
-                        self.__put_count += count
-                    print('Put count:', self.__put_count, flush=True)
                     count = 0
                 subsymbol = max_freq_index
                 count += 1
-        print('Demodulator returning')
-
-    def running(self) -> bool:
-        return self.__thread and self.__thread.is_alive()
-                
 
     def stop(self):
-        print('Stopping Demodulator', flush=True)
         self.__stream.abort()
-        self.__thread.join()
-        print('Stopped Demodulator', flush=True)
+        try:
+            self.__thread.join()
+        except RuntimeError:
+            pass
