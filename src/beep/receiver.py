@@ -38,7 +38,7 @@ if __name__ == '__main__':
         f3 = 8000
         t = np.linspace(0,T,round(fs*T))
         y = scipy.signal.chirp(t,f2,T,f3)
-        r = recorder.waveRecorder(fs,3)
+        r = recorder.waveRecorder(fs,3,'receiver.wav')
         thread = ThreadWithReturnValue(target=r.saveWave)
         thread.start()
         time.sleep(1.5)

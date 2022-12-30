@@ -41,7 +41,7 @@ if __name__ == '__main__':
     t = np.linspace(0,T,round(fs*T))
     y = scipy.signal.chirp(t,f1,T,f2)
     if(send_ready()):
-        r = recorder.waveRecorder(fs,3)
+        r = recorder.waveRecorder(fs,3,'sender.wav')
         thread = ThreadWithReturnValue(target=r.saveWave)
         thread.start()
         sd.play(y, fs,blocking=True)
