@@ -23,7 +23,6 @@ class TextDecoder:
         self.__bits = bitarray()
         self.__text = ''
         
-        
     def decode(self, blocking: bool=False):
         if not blocking:
             self.__thread = threading.Thread(target=self.decode, args=(True,))
@@ -35,7 +34,6 @@ class TextDecoder:
 
         bits_buffer = Queue()
         self.__receiver.receive(bits_buffer)
-
 
         self.__running = True
         while self.__running:

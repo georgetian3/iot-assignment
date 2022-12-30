@@ -1,35 +1,63 @@
 import numpy as np
 import random
-from queue import Queue
-from .bluetooth import BluetoothSender, BluetoothReceiver
-from .modem import Modulator, Demodulator
-from .soundproperties import SoundProperties
+from queue import Queue, Empty
+from .main import modulator, demodulator
 from bitarray import bitarray
 import time
-import difflib
+import Levenshtein
 
 def add_random_noise(wave):
     noise = np.random.normal(0,1,100)
     wave += noise
 
-class Tester:
+def gen_rand_bits(n=128):
+    ba = bitarray()
+    for _ in range(n):
+        ba.append(random.randint(0, 1))
+    with open('tests.txt', 'w') as f:
+        f.write(ba.to01())
 
-    def __init__(self, properties: SoundProperties, role: str):
-        if role not in ['sender', 'receiver']:
-            raise ValueError('Invalid role')
-        self.role = role
-        self.properties = properties
-        self.sender = BluetoothSender(Modulator(properties))
-        self.receiver = BluetoothReceiver(Demodulator(properties))
 
-    def run(self, repeats=10):
-        test_data = bitarray([0, 1, 0, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1] * 100)
-        for _ in range(len(repeats)):
-            if self.role == 'receiver':
-                bit_buffer = Queue()
-                self.receiver.receive(bit_buffer, blocking=True)
-                received_data = bitarray(bit_buffer.queue)
-                assert test_data == received_data
-            elif self.role == 'sender':
-                self.sender.send(test_data, blocking=True)
-                time.sleep(1)
+def run_modulator(repeats=10):
+    print('Testing as modulator')
+
+    with open('tests.txt') as f:
+        bits = bitarray(f.read())
+    
+    #bits = bitarray([1, 1, 1, 0] * 1000)
+    print('Sending:', bits)
+    for i in range(repeats):
+
+        print(f'Trial {i + 1} / {repeats}: modulating...', end='', flush=True)
+        modulator.modulate(bits, blocking=True)
+        print('done. Press enter to continue', end='')
+        input()
+    print('All trials completed')
+
+
+def run_demodulator(repeats=10):
+    print('Testing as demodulator, ')
+    with open('tests.txt') as f:
+        correct = f.read().strip()
+    print('Correct:', correct)
+    for i in range(repeats):
+
+        buffer = Queue()
+        demodulated = ''
+        print(f'Trial {i + 1}: demodulating, press ctrl + c to end current trial...', end='', flush=True)
+        demodulator.demodulate(buffer)
+        while True:
+            try:
+                bit = buffer.get(timeout=0.1)
+                if bit in (0, 1):
+                    demodulated += str(bit)
+            except Empty:
+                print('empty')
+                continue
+            except KeyboardInterrupt:
+                break
+        demodulator.stop()
+        packet_loss = 1 - len(demodulated) / len(correct)
+        error_rate = 1 - Levenshtein.ratio(demodulated, correct)
+        print(f'done: packet loss {packet_loss}, error rate {error_rate}')
+    print('All trials completed')
