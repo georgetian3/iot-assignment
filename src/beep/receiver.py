@@ -50,14 +50,11 @@ if __name__ == '__main__':
         z2 = z2[::-1]
         p1 = np.argmax(np.convolve(data.reshape(-1),z1.reshape(-1),'valid'))
         p2 = np.argmax(np.convolve(data.reshape(-1),z2.reshape(-1),'valid'))
-        print(data.shape)
+        sendTime(p2-p1)
         plt.plot(data.reshape(-1))
         plt.axvline(p1,c='r')
         plt.axvline(p2)
         plt.show()
         print(343*p1/fs)
-        print(p2,p1)
         print((p2-p1)/fs)
-	
-        sendTime(p2-p1)
         client.close()
