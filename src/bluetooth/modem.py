@@ -100,6 +100,9 @@ class Demodulator:
                     if delta > max_delta:
                         max_delta = delta
                         max_freq_index = i
+
+                # at this point `max_freq_index` is equal to the symbol
+
                 #if max_freq_index != -1:
                     #print(list(magnitudes))
                     #print(' '.join(str(round(magnitudes[freq_indexes[i]], 2)).ljust(4, '0').rjust(6, ' ') for i in range(len(freq_indexes))), flush=True)
