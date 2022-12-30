@@ -1,7 +1,7 @@
 import numpy as np
 import random
 from queue import Queue, Empty
-from .main import modulator, demodulator
+from .main import modulator, demodulator, bitrate
 from bitarray import bitarray
 import time
 import Levenshtein
@@ -35,6 +35,7 @@ def run_modulator(repeats=10):
     print('All trials completed')
 
 
+
 def run_demodulator(repeats=10):
     print('Testing as demodulator, ')
     with open('tests.txt') as f:
@@ -46,17 +47,12 @@ def run_demodulator(repeats=10):
         demodulated = ''
         print(f'Trial {i + 1}: demodulating, press ctrl + c to end current trial...', end='', flush=True)
         demodulator.demodulate(buffer)
-        while True:
-            try:
-                bit = buffer.get(timeout=0.1)
-                if bit in (0, 1):
-                    demodulated += str(bit)
-            except Empty:
-                print('empty')
-                continue
-            except KeyboardInterrupt:
-                break
+        time.sleep(bitrate * (len(correct) * 1.5))
         demodulator.stop()
+        while not buffer.empty():
+            bit = buffer.get()
+            if bit in (0, 1):
+                demodulated += str(bit)
         packet_loss = 1 - len(demodulated) / len(correct)
         error_rate = 1 - Levenshtein.ratio(demodulated, correct)
         print(f'done: packet loss {packet_loss}, error rate {error_rate}')

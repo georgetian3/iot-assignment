@@ -12,13 +12,13 @@ properties = SoundProperties(
     blocks_per_symbol=4,
 )
 
-""" bitrate = properties.sample_rate / (properties.block_size * properties.blocks_per_symbol) * int(np.log2(len(properties.frequencies)))
-print('Bitrate:', bitrate, 'symbols/second')
+bitrate = properties.sample_rate / (properties.block_size * properties.blocks_per_symbol) * int(np.log2(len(properties.frequencies)))
+#print('Bitrate:', bitrate, 'symbols/second')
 waves_per_symbol = np.array(properties.frequencies) / bitrate
-print('Waves per symbol:', waves_per_symbol)
+#print('Waves per symbol:', waves_per_symbol)
 waves_per_block = waves_per_symbol / properties.blocks_per_symbol
 print('Waves per block:', waves_per_block)
- """
+
 
 buffer = Queue()
 
