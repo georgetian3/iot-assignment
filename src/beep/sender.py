@@ -64,7 +64,7 @@ if __name__ == '__main__':
         plt.savefig('sender.png')
         p1 = (p1-1)/fs
         p2 = (p2-1)/fs
-        dAA = 0.2
-        dBB = 0.2
+        dAA = 0
+        dBB = 0
         print(p1,p2,psub)
-        print(343 / 2 * (p2 - p1 - psub) + dAA + dBB)
+        print(343 / 2 * (p2 - p1 - psub) + dAA/2 + dBB/2)
