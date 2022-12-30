@@ -8,7 +8,7 @@ from scipy.io import wavfile
 import time
 import matplotlib.pyplot as plt
 client = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-host = "127.0.0.1"
+host = "192.168.1.252"
 port = 2333
 client.connect((host,port))
 class ThreadWithReturnValue(Thread):
