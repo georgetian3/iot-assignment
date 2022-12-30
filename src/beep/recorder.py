@@ -9,7 +9,7 @@ class waveRecorder():
         self.filepath = filepath
     def record(self):
         audio = pyaudio.PyAudio()
-        stream = audio.open(format=pyaudio.paInt16,channels=1,rate=self.sampleRate,
+        stream = audio.open(format=pyaudio.paInt32,channels=1,rate=self.sampleRate,
                             input=True,frames_per_buffer=1024)
         print('----------begin----------')
         frames = []
@@ -19,7 +19,7 @@ class waveRecorder():
         print('---------end---------')
         stream.stop_stream()
         stream.close()
-        width = audio.get_sample_size(pyaudio.paInt16)
+        width = audio.get_sample_size(pyaudio.paInt32)
         audio.terminate()
         return frames,width 
     def saveWave(self):
@@ -30,4 +30,4 @@ class waveRecorder():
         w.setframerate(self.sampleRate)
         w.writeframes(b''.join(frames))
         w.close()
-        return  np.frombuffer(b''.join(frames),dtype='<i2').reshape(-1,1)
+        return  np.frombuffer(b''.join(frames),dtype='<i4').reshape(-1,1)
