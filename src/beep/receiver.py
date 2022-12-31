@@ -41,7 +41,7 @@ def filter_bp(x,fs,wl,wh):
     return x_filter
 if __name__ == '__main__':
     fs = 48000
-    T = 0.5
+    T = 1
     f1 = 2000
     f2 = 4000
     f3 = 6000
