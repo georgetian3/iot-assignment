@@ -39,12 +39,35 @@
     \end{tabular}
 \end{table}
 
-蓝牙发送器与接收器分别由 \fileref{bluetooth/bluetooth.py} 中的 \code{BluetoothSender} 和 \code{BluetoothReceiver} 类实现，其功能对应计算机网络中的传输层。发送器负责将输入的比特序列分段，在蓝牙包中封装并将蓝牙包的比特序列传给调制器。接收器再调用解调器获取比特序列
+蓝牙发送器与接收器分别由 \fileref{bluetooth/bluetooth.py} 中的 \code{BluetoothSender} 和 \code{BluetoothReceiver} 类实现，其功能对应计算机网络中的传输层。发送器负责将输入的比特序列分段，在蓝牙包中封装并将蓝牙包的比特序列传给调制器。接收器再调用解调器获取比特序列，解封，并存放在调用者提供的缓冲队列中。
 
 
 \subsubsection{字符串编码器与解码器}
 
-
-
+字符串的编码与解码别由 \fileref{bluetooth/text.py} 中的 \code{TextEncoder} 和 \code{TextDecoder} 类实现，其功能对应计算机网络中的应用层。由于此项目需要支持中文字符，因此字符的编码默认使用 UTF-8。编码器将输入的字符串编码并将比特六输入给蓝牙发送器。调用 \code{TextDecoder} 的函数 \code{decode} 会开始解码过程，即从蓝牙接收器获取比特，并通过调用 \code{get} 获取目前已经解码的字符串。由于 UTF-8 是可变长度字符编码，则第一次调用 \code{get} 返回的字符串不一定是第二次调用 \code{get} 返回的字符串的前缀。但是实现这个功能而不是等到收到所有比特后再解码的目的是为了得到“实时”接收数据的效果。
 
 \subsection{测试}
+
+优化声波属性的目标是在保证丢包率与误码率为零的前提下增加比特率。比特率为：
+
+\noindent\code{bitrate = sample_rate / (block_size * blocks_per_symbol) * log2(len(frequencies))}
+
+采样率只能设置为设备的最大值，即 384KHz。每个符号中的区块的个数不能太小，否则被错误地解调的区块的可接受范围将会减小，导致整体的误码率增加。通过实验判定仍然保持误码率为零的值是 \code{blocks_per_symbol = 4}。一个区块中包含的声波周期的个数是：
+
+\noindent\code{waves_per_block = frequency * block_size / (sample_rate * log2(len(frequencies)))}
+
+这个值不能太小否则 FFT 的计算会不准确，从而增加误码率，则必须选择较高的频率。由于 FFT 只能计算 $nf/N\;(n=0,\cdots,$ \code{block_size} $/2)$ 个频率的强度，则在固定 \code{len(frequencies) = 2}（为了减少寻找强度临界值的难度），选择了 \code{block_size = 2 ** 7}。最后选择的两个频率是在给定的 \code{block_size} 下可以计算出的最高的但是设备可以播放和接收的频率，即 12KHz 与 15 KHz。以上参数都存放在 \fileref{bluetooth/main.py} 中。最后的比特率为 750 比特每秒。
+
+\newpage
+
+由于声波的强度依赖于扬声器的音量、录音器的敏感度、与测试环境（扬声器和录音器之间的距离，附近的物体等等），临界值只能通过手动测试而获取。以下的测试都是在 12KHz、15 KHz 频率的声波在一米间距的强度临界值分别为 5、2 的情况下运行的。
+
+\subsubsection{距离对传输性能影响}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{ccc}\toprule
+        距离（cm）& 丢包率 & 误码率 \\\midrule
+        \bottomrule
+    \end{tabular}
+\end{table}

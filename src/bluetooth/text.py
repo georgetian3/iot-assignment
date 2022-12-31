@@ -21,12 +21,12 @@ class TextDecoder:
         self.__receiver = receiver
         self.__encoding = encoding
         self.__bits = bitarray()
+        self.__thread = threading.Thread()
         self.__text = ''
-        
         
     def decode(self, blocking: bool=False):
         if not blocking:
-            self.__thread = threading.Thread(target=self.decode, args=(True,))
+            self.__thread = threading.Thread(target=self.decode, args=(True,), daemon=True)
             self.__thread.start()
             return
 
@@ -36,12 +36,13 @@ class TextDecoder:
         bits_buffer = Queue()
         self.__receiver.receive(bits_buffer)
 
-
         self.__running = True
         while self.__running:
             bit = bits_buffer.get()
+            #print(bit, end='', flush=True)
             if bit == None:
-                return #bits.tobytes().decode(self.__encoding)
+                print('Received none')
+                return
             self.__bits.append(bit)
 
     def get(self):
@@ -52,6 +53,7 @@ class TextDecoder:
         return self.__text
 
     def running(self):
+        #self.__thread.join(0)
         return self.__thread and self.__thread.is_alive()
 
     def stop(self):

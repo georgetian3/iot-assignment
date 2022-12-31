@@ -40,7 +40,8 @@ class Modulator:
                 symbol = 0
                 i = 0
 
-        #print(''.join(map(str, symbols)))
+        #print('Modulating:')
+        print(''.join(map(str, symbols)))
 
         wave = np.concatenate(tuple(self.waves[symbol]for symbol in symbols))
         self.stop()
@@ -69,52 +70,65 @@ class Demodulator:
 
     def demodulate(self, buffer: Queue, blocking: bool=False):
         if not blocking:
-            self.__thread = threading.Thread(target=self.demodulate, args=(buffer, True))
+            self.__thread = threading.Thread(target=self.demodulate, args=(buffer, True), daemon=True)
             self.__thread.start()
             return
-        
+        bits = []
         freq_indexes = tuple(np.where(np.isclose(self.get_fft_frequencies(), freq))[0][0] for freq in self.__properties.frequencies)
 
-        print('Freq indexes:', freq_indexes)
-        print(' '.join(map(str, (freq for freq in self.get_fft_frequencies() if freq < 20000))))
+        #print('Freq indexes:', freq_indexes)
+        #print(' '.join(map(str, (freq for freq in self.get_fft_frequencies() if freq < 20000))))
         #tuple(self.__closest_frequency_index(self.__properties.block_size, self.__properties.sample_rate, freq) for freq in self.__properties.frequencies)
 
         subsymbol = -1
         count = 0
 
-        with self.__stream as stream:
-            while self.__stream.active:
-                try:
-                    block = stream.read(self.__properties.block_size)[0]
-                except sd.PortAudioError:
-                    break
-                magnitudes = abs(np.fft.rfft(block[:, 0])[:self.__properties.block_size // 2])
+        found_nonneg = False
 
-                max_delta = 0
-                max_freq_index = -1
+        try:
+            self.__stream.start()
+        except sd.PortAudioError:
+            return
 
-                # finding the frequency based on the difference between each frequency's 
-                # magnitude and its threshold
-                for i in range(len(self.__properties.frequencies)):
-                    delta = magnitudes[freq_indexes[i]] - self.__thresholds[i]
-                    if delta > max_delta:
-                        max_delta = delta
-                        max_freq_index = i
+        while self.__stream.active:
+            try:
+                block = self.__stream.read(self.__properties.block_size)[0]
+            except sd.PortAudioError:
+                return
+            magnitudes = abs(np.fft.rfft(block[:, 0])[:self.__properties.block_size // 2])
 
-                # at this point `max_freq_index` is equal to the symbol
+            max_delta = 0
+            max_freq_index = -1
 
-                #if max_freq_index != -1:
-                    #print(list(magnitudes))
-                    #print(' '.join(str(round(magnitudes[freq_indexes[i]], 2)).ljust(4, '0').rjust(6, ' ') for i in range(len(freq_indexes))), flush=True)
+            # finding the frequency based on the difference between each frequency's 
+            # magnitude and its threshold
+            for i in range(len(self.__properties.frequencies)):
+                delta = magnitudes[freq_indexes[i]] - self.__thresholds[i]
+                if delta > max_delta:
+                    max_delta = delta
+                    max_freq_index = i
 
-                if count > 0 and max_freq_index != subsymbol:
-                    count = round(count / self.__properties.blocks_per_symbol)
-                    #print(str(subsymbol) * count, end='', flush=True)
-                    for _ in range(count):
-                        buffer.put(subsymbol)
-                    count = 0
-                subsymbol = max_freq_index
-                count += 1
+            # at this point `max_freq_index` is equal to the symbol
+
+            #if max_freq_index != -1:
+                #print(list(magnitudes))
+                #print(' '.join(str(round(magnitudes[freq_indexes[i]], 2)).ljust(4, '0').rjust(6, ' ') for i in range(len(freq_indexes))), flush=True)
+
+            if count > 0 and max_freq_index != subsymbol:
+                count = round(count / self.__properties.blocks_per_symbol)
+                print(str(subsymbol) * count, end='', flush=True)
+                if subsymbol != -1:
+                    found_nonneg = True
+                    bits.extend([subsymbol] * count)
+                elif found_nonneg: 
+                    print('found nonneg')
+                    return bits
+                for _ in range(count):
+                    pass
+                    #buffer.put(subsymbol)
+                count = 0
+            subsymbol = max_freq_index
+            count += 1
 
     def stop(self):
         self.__stream.abort()

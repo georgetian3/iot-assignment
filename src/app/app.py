@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 from bluetooth.main import properties, buffer, modulator, demodulator, sender, receiver, encoder, decoder
+from queue import Empty
 import logging
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
@@ -24,32 +25,21 @@ def send():
     data = request.json
     if data['action'] == 'play':
         print('Playing:', data['text'])
-        sender.send(data['text'])
+        encoder.encode(data['text'])
     elif data['action'] == 'stop':
         print('Stopping play')
-        sender.stop()
+        encoder.stop()
     return 'ok'
 
 @app.post('/receiver')
 def receive():
     data = request.json
     if data['action'] == 'receive':
-        receiver.receive(buffer)
+        decoder.decode()
     elif data['action'] == 'stop':
-        receiver.stop()
+        decoder.stop()
     elif data['action'] == 'read':
-        chars = []
-        end = False
-        try:
-            while True:
-                char = buffer.get_nowait()
-                if char == 0:
-                    end = True
-                else:
-                    chars.append(char)
-        except Empty:
-            pass
-        return ''.join(chars), 400 if end else 200
+        return decoder.get(), 200 if decoder.running() else 400
 
     return 'ok'
 

@@ -7,6 +7,9 @@
 <script>
 
   async function play() {
+    document.getElementById('play').disabled = true;
+    document.getElementById('stop_play').disabled = false;
+
     str = document.getElementById('text').value;
     await fetch('/sender', {
       method: 'POST',
@@ -19,6 +22,8 @@
   }
 
   async function stop_play() {
+    document.getElementById('play').disabled = false;
+    document.getElementById('stop_play').disabled = true;
     await fetch('/sender', {
       method: 'POST',
       headers: {
@@ -32,9 +37,10 @@
   var listen_loop = true;
 
   async function listen() {
+    document.getElementById('listen').disabled = true;
+    document.getElementById('stop_listen').disabled = false;
 
     result = document.getElementById('text-received');
-    result.innerText = '----- START TRANSMISSION -----\n';
 
     const response = await fetch('/receiver', {
       method: 'POST',
@@ -44,7 +50,6 @@
       },
       body: JSON.stringify({action: 'receive'}),
     });
-    console.log(response);
 
     listen_loop = true;
     while (listen_loop) {
@@ -56,17 +61,20 @@
         },
         body: JSON.stringify({action: 'read'}),
       });
-      result.innerText += await response.text();
+      result.innerText = await response.text();
       if (response.status == 400) {
-        result.innerText += '\n----- END TRANSMISSION -----';
+        listen_loop = false;
       }
 
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise(r => setTimeout(r, 200));
     }
+    stop_listen();
   }
 
   async function stop_listen() {
-    listen_loop = false
+    listen_loop = false;
+    document.getElementById('stop_listen').disabled = true;
+    document.getElementById('listen').disabled = false;
     const response = await fetch('/receiver', {
         method: 'POST',
         headers: {
@@ -85,19 +93,18 @@
   <label>ASCII 字符串</label>
   <textarea class="form-control" id="text" rows="3"></textarea>
   <br>
-  <button type="submit" class="btn btn-primary" onclick="play()">播放</button>
-  <button type="submit" class="btn btn-primary" onclick="stop_play()">停止</button>
+  <button id="play" type="submit" class="btn btn-primary" onclick="play()">播放</button>
+  <button id="stop_play" type="submit" class="btn btn-primary" onclick="stop_play()" disabled="true">停止</button>
 </div>
 
 <br><br>
 
 <div id="receive">
   <label>ASCII 字符串</label>
-  <pre style="background-color: #DDDDDD; padding: 10px; white-space: pre-wrap;">
-<code id="text-received"></code></pre>
+  <pre style="background-color: #DDDDDD; padding: 10px; white-space: pre-wrap;"><code id="text-received"></code></pre>
   <br>
-  <button type="submit" class="btn btn-primary" onclick="listen()">接收</button>
-  <button type="submit" class="btn btn-primary" onclick="stop_listen()">停止</button>
+  <button id="listen" type="submit" class="btn btn-primary" onclick="listen()">接收</button>
+  <button id="stop_listen" type="submit" class="btn btn-primary" onclick="stop_listen()" disabled="true">停止</button>
 </div>
 
 
