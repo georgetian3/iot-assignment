@@ -79,6 +79,6 @@ if __name__ == '__main__':
         print(p1,p2,psub)
         print('结果(cm)：')
         result = 100* 343/2 * (p2-p1-psub) + dAA + dBB 
-        if result > 3 :
+        if result > 2 :
             result = result - np.floor(result) +1
         print(result)
