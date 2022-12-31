@@ -55,7 +55,7 @@ if __name__ == '__main__':
         time.sleep(3*T)
         sd.play(y, fs)
         data = thread.join()
-        data = filter_bp(data.reshape(-1)[:6*T*fs],fs,f1-10,f3+10)
+        data = filter_bp(data.reshape(-1)[:int(6*T*fs)],fs,f1-10,f3+10)
         z1 = scipy.signal.chirp(t,f1,T,f2)
         z2 = scipy.signal.chirp(t,f2,T,f3)
         z1 = z1[::-1]

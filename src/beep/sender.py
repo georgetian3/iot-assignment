@@ -45,9 +45,9 @@ def filter_bp(x,fs,wl,wh):
 if __name__ == '__main__':
     fs = 48000
     T = 0.5
-    f1 = 4000
-    f2 = 6000
-    f3 = 8000
+    f1 = 2000
+    f2 = 4000
+    f3 = 6000
     t = np.linspace(0,T,round(fs*T))
     y = scipy.signal.chirp(t,f1,T,f2)
     if(send_ready()):
@@ -56,7 +56,7 @@ if __name__ == '__main__':
         thread.start()
         sd.play(y, fs,blocking=True)
         data  = thread.join()
-        data  = filter_bp(data.reshape(-1),fs,3500,8500)
+        data  = filter_bp(data.reshape(-1)[:int(6*T*fs)],fs,f1-10,f3+10)
         z1 = scipy.signal.chirp(t,f1,T,f2)
         z2 = scipy.signal.chirp(t,f2,T,f3)
         z1 = z1[::-1]
