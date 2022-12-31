@@ -47,26 +47,26 @@ if __name__ == '__main__':
     f3 = 8000
     t = np.linspace(0,T,round(fs*T))
     y = scipy.signal.chirp(t,f2,T,f3)
-    if (getmsg()):
-
-        r = recorder.waveRecorder(fs,6*T,'receiver.wav')
-        thread = ThreadWithReturnValue(target=r.saveWave)
-        thread.start()
-        time.sleep(3*T)
-        sd.play(y, fs)
-        data = thread.join()
-        data = filter_bp(data.reshape(-1)[:int(6*T*fs)],fs,f1-10,f3+10)
-        z1 = scipy.signal.chirp(t,f1,T,f2)
-        z2 = scipy.signal.chirp(t,f2,T,f3)
-        z1 = z1[::-1]
-        z2 = z2[::-1]
-        p1 = np.argmax(np.convolve(data,z1.reshape(-1),'valid'))
-        p2 = np.argmax(np.convolve(data,z2.reshape(-1),'valid'))
-        sendTime(p2-p1)
-        plt.plot(data)
-        plt.axvline(p1,c='r')
-        plt.axvline(p2,c='g')
-        plt.savefig('receiver.png')
-        print(343*p1/fs)
-        print((p2-p1)/fs)
-        client.close()
+    for i in range(2):
+        if (getmsg()):
+            r = recorder.waveRecorder(fs,6*T,'receiver.wav')
+            thread = ThreadWithReturnValue(target=r.saveWave)
+            thread.start()
+            time.sleep(3*T)
+            sd.play(y, fs)
+            data = thread.join()
+            data = filter_bp(data.reshape(-1)[:int(6*T*fs)],fs,f1-10,f3+10)
+            z1 = scipy.signal.chirp(t,f1,T,f2)
+            z2 = scipy.signal.chirp(t,f2,T,f3)
+            z1 = z1[::-1]
+            z2 = z2[::-1]
+            p1 = np.argmax(np.convolve(data,z1.reshape(-1),'valid'))
+            p2 = np.argmax(np.convolve(data,z2.reshape(-1),'valid'))
+            sendTime(p2-p1)
+            plt.plot(data)
+            plt.axvline(p1,c='r')
+            plt.axvline(p2,c='g')
+            plt.savefig('receiver.png')
+            print(343*p1/fs)
+            print((p2-p1)/fs)
+    client.close()

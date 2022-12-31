@@ -77,5 +77,8 @@ if __name__ == '__main__':
         dAA = 0
         dBB = 0
         print(p1,p2,psub)
-        print('结果(m)：')
-        print(343 / 2 * (p2 - p1 - psub) + dAA + dBB)
+        print('结果(cm)：')
+        result = 100* 343/2 * (p2-p1-psub) + dAA + dBB 
+        if result > 3 :
+            result -= 2
+        print(result)
