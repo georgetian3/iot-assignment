@@ -41,10 +41,10 @@ def filter_bp(x,fs,wl,wh):
     return x_filter
 if __name__ == '__main__':
     fs = 48000
-    T = 1
-    f1 = 2000
-    f2 = 4000
-    f3 = 6000
+    T = 0.5
+    f1 = 4000
+    f2 = 6000
+    f3 = 8000
     t = np.linspace(0,T,round(fs*T))
     y = scipy.signal.chirp(t,f2,T,f3)
     if (getmsg()):
