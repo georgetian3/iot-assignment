@@ -12,7 +12,7 @@ def parse_args():
     parser.add_argument('--bs', help='Run Bluetooth sender, argument is the text to be send')
     parser.add_argument('--br', action='store_true', help='Run Bluetooth receiver')
     parser.add_argument('--ds', action='store_true', help='Run distance sender')
-    parser.add_argument('--dr', help='Run distance receiver, argument is IP address of sender')
+    parser.add_argument('--dr', action='store_true', help='Run distance receiver')
     parser.add_argument('--host', help='The host IP of sender', default='127.0.0.1')
     parser.add_argument('--port', help='The host port of sender', default=2333)
     parser.add_argument('--dAA',help='The distance between mic and speaker of the sender device (m)', default=0)

@@ -20,8 +20,8 @@ class Sender:
         self.socket_server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.host = ''
         self.port = int(port)
-        self.dAA = dAA
-        self.dBB = dBB
+        self.dAA = float(dAA)
+        self.dBB = float(dBB)
         self.socket_server.bind((self.host,self.port))
         self.socket_server.listen(5)
         self.client_socket ,self.address = self.socket_server.accept()
