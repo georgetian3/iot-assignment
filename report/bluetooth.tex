@@ -60,7 +60,7 @@
 
 \newpage
 
-由于声波的强度依赖于扬声器的音量、录音器的敏感度、与测试环境（扬声器和录音器之间的距离，附近的物体等等），临界值只能通过手动测试而获取。以下的测试都是在 12KHz、15 KHz 频率的声波在一米间距的强度临界值分别为 5、2 的情况下运行的。
+由于声波的强度依赖于扬声器的音量、录音器的敏感度、与测试环境（扬声器和录音器之间的距离，附近的物体等等），临界值只能通过手动测试而获取。以下的测试都是在 12KHz、15 KHz 频率的声波在一米间距的强度临界值分别为 5、2 的情况下运行的。测试用例是 100 个随机 Unicode 字符。 
 
 \subsubsection{距离影响}
 
@@ -69,106 +69,93 @@
     \begin{tikzpicture}
         \begin{axis}[
             xlabel=间距（cm）,
-            ylabel=$y$,
-            xmin=0, xmax=30,
-            ymin=0, ymax=100,
-            xtick={10,20,30},
-            ytick={0,10,...,100}
+            ylabel=丢包率/误码率（\%）,
+            legend pos=north west
         ]
-        \addplot[smooth,mark=*,blue] plot coordinates {
-            (0,10)
-            (8,30)
-            (16,40)
+        \addplot[mark=*,blue] plot coordinates {
+            (20,0)
+            (40,0)
+            (60,0)
+            (80,0)
+            (100,0)
         };
-        \addlegendentry{Case 1}
+        \addlegendentry{丢包率}
         
-        \addplot[smooth,color=red,mark=x]
-            plot coordinates {
-                (4,15)
-                (10,25)
-                (15,40)
-                (18,60)
-            };
-        \addlegendentry{Case 2}
+        \addplot[color=red,mark=*]plot coordinates {
+            (20,0)
+            (40,0)
+            (60,2.4)
+            (80,4.3)
+            (100,4.5)
+        };
+        \addlegendentry{误码率}
         \end{axis}
     \end{tikzpicture}
 \end{figure}
-
-\begin{tikzpicture}
-    \pgfplotsset{
-        scale only axis,
-        scaled x ticks=base 10:3,
-        xmin=0, xmax=0.06
-    }
-    
-    \begin{axis}[
-      axis y line*=left,
-      ymin=0, ymax=80,
-      xlabel=x-axis,
-      ylabel=y-axis 1,
-    ]
-    \addplot[smooth,mark=x,red]
-      coordinates{
-        (0,68.6)
-        (0.0148,72)
-        (0.0295,68.6)
-        (0.0441,53.4)
-        (0.059,22.8)
-    }; \label{plot_one}
-    
-    \addplot[smooth,mark=o,green]
-      coordinates{
-        (0,60)
-        (0.0148,65)
-        (0.0295,73)
-        (0.0441,49)
-        (0.059,19)
-    }; \label{plot_two}
-    
-    \end{axis}
-    
-    \begin{axis}[
-      axis y line*=right,
-      axis x line=none,
-      ymin=0, ymax=100,
-      ylabel=y-axis 2
-    ]
-    \addlegendimage{/pgfplots/refstyle=plot_one}\addlegendentry{plot 1}
-    \addlegendimage{/pgfplots/refstyle=plot_two}\addlegendentry{plot 2}
-    \addplot[smooth,mark=*,blue]
-      coordinates{
-        (0,0)
-        (0.0148,48)
-        (0.0295,66)
-        (0.0441,66)
-        (0.059,45.0)
-    }; \addlegendentry{plot 3}
-    \end{axis}
-    
-    \end{tikzpicture}
 
 由于以上参数是在一米的距离优化的，所以距离更近会导致更多超过临界值的声波。此时表示 \code{0} 的声波可能被误解为表示 \code{1} 的声波，反之亦然。因此丢包率不变但是误码率会增加。
 
 \subsubsection{环境噪声影响}
 
-\begin{table}[h!]
+此测试在播放数据的同时在旁边播放音量不同的音乐。
+
+\begin{figure}[h!]
     \centering
-    \begin{tabular}{ccc}\toprule
-        （cm）& 丢包率 & 误码率 \\\midrule
-        \bottomrule
-    \end{tabular}
-\end{table}
+    \begin{tikzpicture}
+        \begin{axis}[
+            xlabel=音量等级,
+            xtick={1,2,3},
+            ylabel=丢包率/误码率（\%）,
+            legend pos=north west
+        ]
+        \addplot[mark=*,blue] plot coordinates {
+            (1,0)
+            (2,0)
+            (3,0)
+        };
+        \addlegendentry{丢包率}
+        
+        \addplot[color=red,mark=*]plot coordinates {
+            (1,0)
+            (2,0)
+            (3,0)
+        };
+        \addlegendentry{误码率}
+        \end{axis}
+    \end{tikzpicture}
+\end{figure}
+
+可见由于通信使用的频率较高，正常的噪音不会影响到通信。
+
+\newpage
 
 \subsubsection{环境遮挡影响}
 
-\begin{table}[h!]
+\begin{figure}[h!]
     \centering
-    \begin{tabular}{ccc}\toprule
-        障碍物厚度（cm）& 丢包率 & 误码率 \\\midrule
-        1 & & \\\midrule
-        5 & & \\\midrule
-        10 & & \\\midrule
-        20 & & \\\midrule
-        \bottomrule
-    \end{tabular}
-\end{table}
+    \begin{tikzpicture}
+        \begin{axis}[
+            xlabel=障碍物厚度（cm）,
+            ylabel=丢包率/误码率（\%）,
+            legend pos=north west
+        ]
+        \addplot[mark=*,blue] plot coordinates {
+            (1,4.5)
+            (5,6.5)
+            (10,5.8)
+            (20,5.1)
+        };
+        \addlegendentry{丢包率}
+        
+        \addplot[color=red,mark=*]plot coordinates {
+            (1,7.6)
+            (5,6.8)
+            (10,8.2)
+            (20,7.9)
+        };
+        \addlegendentry{误码率}
+        \end{axis}
+    \end{tikzpicture}
+\end{figure}
+
+由于障碍物降低了声音的强度，因此增加了丢包率以及误码率，但此效果与障碍物的厚度似乎没有关系。
