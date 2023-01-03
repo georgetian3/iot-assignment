@@ -45,6 +45,7 @@ def bt_receiver():
 @app.post('/dist-sender')
 def dist_sender():
     data = request.json
+    print(data)
     if data['action'] == 'send':
         sender = Sender(data['port'],data['aa'],data['bb'])
         result = sender.main()
