@@ -1,5 +1,8 @@
-Flask
-matplotlib
-numpy
-sounddevice
-pyaudio
+bitarray==2.6.1
+Flask==2.2.2
+matplotlib==3.6.2
+numpy==1.23.4
+PyAudio==0.2.12
+python_Levenshtein==0.20.9
+scipy==1.9.3
+sounddevice==0.4.5
