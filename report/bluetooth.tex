@@ -62,12 +62,113 @@
 
 由于声波的强度依赖于扬声器的音量、录音器的敏感度、与测试环境（扬声器和录音器之间的距离，附近的物体等等），临界值只能通过手动测试而获取。以下的测试都是在 12KHz、15 KHz 频率的声波在一米间距的强度临界值分别为 5、2 的情况下运行的。
 
-\subsubsection{距离对传输性能影响}
+\subsubsection{距离影响}
+
+\begin{figure}[h!]
+    \centering
+    \begin{tikzpicture}
+        \begin{axis}[
+            xlabel=间距（cm）,
+            ylabel=$y$,
+            xmin=0, xmax=30,
+            ymin=0, ymax=100,
+            xtick={10,20,30},
+            ytick={0,10,...,100}
+        ]
+        \addplot[smooth,mark=*,blue] plot coordinates {
+            (0,10)
+            (8,30)
+            (16,40)
+        };
+        \addlegendentry{Case 1}
+        
+        \addplot[smooth,color=red,mark=x]
+            plot coordinates {
+                (4,15)
+                (10,25)
+                (15,40)
+                (18,60)
+            };
+        \addlegendentry{Case 2}
+        \end{axis}
+    \end{tikzpicture}
+\end{figure}
+
+\begin{tikzpicture}
+    \pgfplotsset{
+        scale only axis,
+        scaled x ticks=base 10:3,
+        xmin=0, xmax=0.06
+    }
+    
+    \begin{axis}[
+      axis y line*=left,
+      ymin=0, ymax=80,
+      xlabel=x-axis,
+      ylabel=y-axis 1,
+    ]
+    \addplot[smooth,mark=x,red]
+      coordinates{
+        (0,68.6)
+        (0.0148,72)
+        (0.0295,68.6)
+        (0.0441,53.4)
+        (0.059,22.8)
+    }; \label{plot_one}
+    
+    \addplot[smooth,mark=o,green]
+      coordinates{
+        (0,60)
+        (0.0148,65)
+        (0.0295,73)
+        (0.0441,49)
+        (0.059,19)
+    }; \label{plot_two}
+    
+    \end{axis}
+    
+    \begin{axis}[
+      axis y line*=right,
+      axis x line=none,
+      ymin=0, ymax=100,
+      ylabel=y-axis 2
+    ]
+    \addlegendimage{/pgfplots/refstyle=plot_one}\addlegendentry{plot 1}
+    \addlegendimage{/pgfplots/refstyle=plot_two}\addlegendentry{plot 2}
+    \addplot[smooth,mark=*,blue]
+      coordinates{
+        (0,0)
+        (0.0148,48)
+        (0.0295,66)
+        (0.0441,66)
+        (0.059,45.0)
+    }; \addlegendentry{plot 3}
+    \end{axis}
+    
+    \end{tikzpicture}
+
+由于以上参数是在一米的距离优化的，所以距离更近会导致更多超过临界值的声波。此时表示 \code{0} 的声波可能被误解为表示 \code{1} 的声波，反之亦然。因此丢包率不变但是误码率会增加。
+
+\subsubsection{环境噪声影响}
 
 \begin{table}[h!]
     \centering
     \begin{tabular}{ccc}\toprule
-        距离（cm）& 丢包率 & 误码率 \\\midrule
+        （cm）& 丢包率 & 误码率 \\\midrule
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsubsection{环境遮挡影响}
+
+\begin{table}[h!]
+    \centering
+    \begin{tabular}{ccc}\toprule
+        障碍物厚度（cm）& 丢包率 & 误码率 \\\midrule
+        1 & & \\\midrule
+        5 & & \\\midrule
+        10 & & \\\midrule
+        20 & & \\\midrule
         \bottomrule
     \end{tabular}
 \end{table}

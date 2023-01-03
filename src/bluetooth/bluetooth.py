@@ -1,11 +1,10 @@
 import math
-from queue import Queue, Empty
+import queue
 import threading
 from typing import Iterable
 from bluetooth.modem import Modulator, Demodulator
 from bitarray import bitarray
 from bitarray.util import int2ba
-import time
 
 
 class BluetoothSender:
@@ -14,9 +13,9 @@ class BluetoothSender:
 
     def encapsulate(self, data: Iterable) -> bitarray:
 
-        #return text
         if len(data) == 0:
-            raise ValueError('No data')
+            #raise ValueError('No data')
+            return
 
         max_packet_count = 0x100
         max_payload_size = 0x100
@@ -53,31 +52,25 @@ class BluetoothReceiver:
         self.__demodulator = demodulator
         self.__thread = threading.Thread()
 
-    def receive(self, out_buffer: Queue, blocking: bool=False) -> None:
+    def receive(self, out_buffer: queue.Queue, blocking: bool=False) -> None:
         if not blocking:
             self.__thread = threading.Thread(target=self.receive, args=(out_buffer, True), daemon=True)
             self.__thread.start()
             return
 
-        in_buffer = Queue()
+        in_buffer = queue.Queue()
         self.__demodulator.demodulate(in_buffer)
 
 
         def get_bit():
-            bit = in_buffer.get()
-            if bit == -1:
-                return 0
-            return bit
-            """ while True:
+            while self.__running:
                 try:
-                    bit = in_buffer.get_nowait()
+                    bit = in_buffer.get(timeout=0.1)
                     if bit == -1:
                         return 0
                     return bit
-
-                except Empty:
-                    time.sleep(0.1) """
-
+                except queue.Empty:
+                    continue
 
         
         def get_byte():
@@ -97,7 +90,7 @@ class BluetoothReceiver:
                     continue
                 preamble = ((preamble << 1) & 0b11111111) + bit
                 if preamble == 0b10101010:
-                    print('Found preamble')
+                    #print('Found preamble')
                     break
 
             # find 8 bit packet sequence number
@@ -113,11 +106,9 @@ class BluetoothReceiver:
             payload_length = get_byte() + 1
             #print('Payload length:', payload_length)
             for i in range(payload_length):
-                print(i, payload_length)
-                bit = get_bit()
                 #print(i, end=' ', flush=True)
-                out_buffer.put(bit)
-            print('Finished packet')
+                out_buffer.put(get_bit())
+            #print('Finished packet')
             #print(flush=True)
         self.__demodulator.stop()
         out_buffer.put(None)

@@ -20,19 +20,17 @@ def distance():
     return render_template('distance.html')
 
 
-@app.post('/sender')
-def send():
+@app.post('/bt-sender')
+def bt_sender():
     data = request.json
     if data['action'] == 'play':
-        print('Playing:', data['text'])
         encoder.encode(data['text'])
     elif data['action'] == 'stop':
-        print('Stopping play')
         encoder.stop()
     return 'ok'
 
-@app.post('/receiver')
-def receive():
+@app.post('/bt-receiver')
+def bt_receiver():
     data = request.json
     if data['action'] == 'receive':
         decoder.decode()
@@ -43,7 +41,11 @@ def receive():
 
     return 'ok'
 
+@app.post('/dist-sender')
+def dist_sender():
+    pass
 
-@app.errorhandler(404)
-def page_not_found(request, exception=None):
-    return render_template('404.html')
+@app.post('/dist-receiver')
+def dist_receiver():
+    pass
+

@@ -1,9 +1,7 @@
-from queue import Queue, Empty
 from .bluetooth import BluetoothSender, BluetoothReceiver
 import threading
 from bitarray import bitarray
-from multiprocessing import Queue
-import time
+import queue
 
 class TextEncoder:
     def __init__(self, sender: BluetoothSender, encoding='utf8'):
@@ -33,17 +31,19 @@ class TextDecoder:
         self.__bits = bitarray()
         self.__text = ''
 
-        bits_buffer = Queue()
+        bits_buffer = queue.Queue()
         self.__receiver.receive(bits_buffer)
 
         self.__running = True
         while self.__running:
-            bit = bits_buffer.get()
-            #print(bit, end='', flush=True)
-            if bit == None:
-                print('Received none')
-                return
-            self.__bits.append(bit)
+            try:
+                bit = bits_buffer.get(timeout=0.1)
+                if bit == None:
+                    #print('got none')
+                    return
+                self.__bits.append(bit)
+            except queue.Empty:
+                continue
 
     def get(self):
         try:
@@ -53,11 +53,16 @@ class TextDecoder:
         return self.__text
 
     def running(self):
-        #self.__thread.join(0)
-        return self.__thread and self.__thread.is_alive()
+        try:
+            self.__thread.join(0)
+            return self.__thread and self.__thread.is_alive()
+        except RuntimeError:
+            return False
 
     def stop(self):
         self.__running = False
-        if self.running():
+        try:
             self.__thread.join()
+        except RuntimeError:
+            pass
         self.__receiver.stop()

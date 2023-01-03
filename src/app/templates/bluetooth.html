@@ -11,7 +11,7 @@
     document.getElementById('stop_play').disabled = false;
 
     str = document.getElementById('text').value;
-    await fetch('/sender', {
+    await fetch('/bt-sender', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -24,7 +24,7 @@
   async function stop_play() {
     document.getElementById('play').disabled = false;
     document.getElementById('stop_play').disabled = true;
-    await fetch('/sender', {
+    await fetch('/bt-sender', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -42,7 +42,7 @@
 
     result = document.getElementById('text-received');
 
-    const response = await fetch('/receiver', {
+    const response = await fetch('/bt-receiver', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
@@ -53,7 +53,7 @@
 
     listen_loop = true;
     while (listen_loop) {
-      const response = await fetch('/receiver', {
+      const response = await fetch('/bt-receiver', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -75,7 +75,7 @@
     listen_loop = false;
     document.getElementById('stop_listen').disabled = true;
     document.getElementById('listen').disabled = false;
-    const response = await fetch('/receiver', {
+    const response = await fetch('/bt-receiver', {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -101,7 +101,7 @@
 
 <div id="receive">
   <label>ASCII 字符串</label>
-  <pre style="background-color: #DDDDDD; padding: 10px; white-space: pre-wrap;"><code id="text-received"></code></pre>
+  <pre style="background-color: #DDDDDD; padding: 10px; white-space: pre-wrap; height: 10em"><code id="text-received"></code></pre>
   <br>
   <button id="listen" type="submit" class="btn btn-primary" onclick="listen()">接收</button>
   <button id="stop_listen" type="submit" class="btn btn-primary" onclick="stop_listen()" disabled="true">停止</button>
