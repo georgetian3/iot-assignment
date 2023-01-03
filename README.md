@@ -1,8 +1,12 @@
 # 《物联网导论》大作业
 
+## 安装依赖
+
+`pip install -r requirements.txt`
+
 ## 运行方式
 
-只需要调用 `main.py` 中的若干个指令
+只需要在 `src/` 下调用 `main.py` 中的若干个指令：
 
 ```
 > py main.py -h
@@ -38,6 +42,6 @@ options:
 
 ### 测距
 
-发送方调用 `py --ds`
+先调用发送方：`py --ds`
 
-接收方调用 `py --dr --host 192.168.1.xxx --port 2333 --dAA 0.1 --dBB 0.1`
+再调用接收方：`py --dr --host 192.168.1.xxx --port 2333 --dAA 0.1 --dBB 0.1`

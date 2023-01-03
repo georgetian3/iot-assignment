@@ -64,10 +64,10 @@ class Receiver:
             p1 = np.argmax(np.convolve(data,z1.reshape(-1),'valid'))
             p2 = np.argmax(np.convolve(data,z2.reshape(-1),'valid'))
             self.sendTime(p2-p1)
-            plt.plot(data)
+            """ plt.plot(data)
             plt.axvline(p1,c='r')
             plt.axvline(p2,c='g')
             plt.savefig('receiver.png')
             print(343*p1/fs)
-            print((p2-p1)/fs)
+            print((p2-p1)/fs) """
         self.client.close()

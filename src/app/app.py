@@ -51,6 +51,8 @@ def dist_sender():
         result = sender.main()
         print(f'result is {result}')
         return result,200
+    print('dist sender')
+    return 'ok'
 
 @app.post('/dist-receiver')
 def dist_receiver():
@@ -58,4 +60,6 @@ def dist_receiver():
     if data['action'] == 'receive':
         receiver = Receiver(data['ip'],data['port'])
         receiver.main()
+    print('dist receiver')
+    return 'ok'
 
