@@ -54,15 +54,10 @@ class Receiver:
         if (self.getmsg()):
             r = recorder.waveRecorder(fs,6*T,'receiver.wav')
             thread = ThreadWithReturnValue(target=r.saveWave)
-            print('before thread start')
             thread.start()
-            print('after thread start')
             time.sleep(3*T)
-            print('before play')
             sd.play(y, fs)
-            print('before thread join')
             data = thread.join()
-            print('after thread join')
             data = self.filter_bp(data.reshape(-1)[:int(6*T*fs)],fs,f1-10,f3+10)
             z1 = scipy.signal.chirp(t,f1,T,f2)
             z2 = scipy.signal.chirp(t,f2,T,f3)
@@ -71,11 +66,4 @@ class Receiver:
             p1 = 0
             p2 = 0
             self.sendTime(p2-p1)
-
-            """ plt.plot(data)
-            plt.axvline(p1,c='r')
-            plt.axvline(p2,c='g')
-            plt.savefig('receiver.png')
-            print(343*p1/fs)
-            print((p2-p1)/fs) """
         self.client.close()
