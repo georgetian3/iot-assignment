@@ -19,7 +19,7 @@ class Sender:
     def __init__(self,port,dAA,dBB):
         self.socket_server = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.host = ''
-        self.port = port
+        self.port = int(port)
         self.dAA = dAA
         self.dBB = dBB
         self.socket_server.bind((self.host,self.port))
