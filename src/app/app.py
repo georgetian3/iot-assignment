@@ -59,9 +59,9 @@ def dist_sender():
         sender = Sender(data['port'],data['aa'],data['bb'])
         thread = ThreadWithReturnValue(target=sender.main())
         thread.start()
-        result = thread.join()
-        print(f'result is {result}')
-        return result,200
+        # result = thread.join()
+        # print(f'result is {result}')
+        return '100',200
     print('dist sender')
     return 'ok'
 
