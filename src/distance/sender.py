@@ -78,3 +78,4 @@ class Sender:
             print('结果(cm)：')
             result = 100* 343/2 * ( p2 - p1 - psub) + self.dAA + self.dBB
             print(result)
+        return result
