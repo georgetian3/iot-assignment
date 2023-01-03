@@ -12,14 +12,15 @@ class ThreadWithReturnValue(Thread):
     def run(self):
         if self._target is not None:
             self._return = self._target(*self._args, **self._kwargs)
- 
+
     def join(self):
         super(ThreadWithReturnValue,self).join()
         return self._return
 class Receiver:
-    def __init__(self,host,port):
+    def __init__(self,host='127.0.0.1',port = 2333):
         self.host = host
         self.port = int(port)
+        print(f'type is {type(self.port)}')
         self.client = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
         self.client.connect((self.host,self.port))
     def sendTime(self,time):

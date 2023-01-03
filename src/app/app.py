@@ -49,6 +49,7 @@ def dist_sender():
     if data['action'] == 'send':
         sender = Sender(data['port'],data['aa'],data['bb'])
         result = sender.main()
+        print(f'result is {result}')
         return result,200
 
 @app.post('/dist-receiver')
