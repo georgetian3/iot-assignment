@@ -52,15 +52,15 @@
 
 \noindent\code{bitrate = sample_rate / (block_size * blocks_per_symbol) * log2(len(frequencies))}
 
-采样率只能设置为设备的最大值，即 384KHz。每个符号中的区块的个数不能太小，否则被错误地解调的区块的可接受范围将会减小，导致整体的误码率增加。通过实验判定仍然保持误码率为零的值是 \code{blocks_per_symbol = 4}。一个区块中包含的声波周期的个数是：
+采样率只能设置为设备的最大值，即 384KHz。每个符号中的区块的个数不能太小，否则被错误地解调的区块的可接受范围将会减小，导致整体的误码率增加。通过实验判定仍然保持误码率为零的值是 \code{blocks_per_symbol = 8}。一个区块中包含的声波周期的个数是：
 
 \noindent\code{waves_per_block = frequency * block_size / (sample_rate * log2(len(frequencies)))}
 
-这个值不能太小否则 FFT 的计算会不准确，从而增加误码率，则必须选择较高的频率。由于 FFT 只能计算 $nf/N\;(n=0,\cdots,$ \code{block_size} $/2)$ 个频率的强度，则在固定 \code{len(frequencies) = 2}（为了减少寻找强度临界值的难度），选择了 \code{block_size = 2 ** 7}。最后选择的两个频率是在给定的 \code{block_size} 下可以计算出的最高的但是设备可以播放和接收的频率，即 12KHz 与 15 KHz。以上参数都存放在 \fileref{bluetooth/main.py} 中。最后的比特率为 750 比特每秒。
+这个值不能太小否则 FFT 的计算会不准确，从而增加误码率，则必须选择较高的频率。由于 FFT 只能计算 $nf/N\;(n=0,\cdots,$ \code{block_size} $/2)$ 个频率的强度，则在固定 \code{len(frequencies) = 2}（为了减少寻找强度临界值的难度），选择了 \code{block_size = 2 ** 7}。最后选择的两个频率是在给定的 \code{block_size} 下可以计算出的最高的但是设备可以播放和接收的频率，即 12KHz 与 15 KHz。最后的比特率为 375 比特每秒。
 
 \newpage
 
-由于声波的强度依赖于扬声器的音量、录音器的敏感度、与测试环境（扬声器和录音器之间的距离，附近的物体等等），临界值只能通过手动测试而获取。以下的测试都是在 12KHz、15 KHz 频率的声波在一米间距的强度临界值分别为 5、2 的情况下运行的。测试用例是 100 个随机 Unicode 字符。 
+由于声波的强度依赖于扬声器的音量、录音器的敏感度、与测试环境（扬声器和录音器之间的距离，附近的物体等等），临界值只能通过手动测试而获取。以下的测试都是在 12KHz、15 KHz 频率的声波在一米间距的强度临界值分别为 5、2 的情况下运行的。
 
 \subsubsection{距离影响}
 

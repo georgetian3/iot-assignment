@@ -70,10 +70,10 @@ class Sender:
             psub = self.receive_time()
             psub = psub/fs
 
-            plt.plot(data)
+            """ plt.plot(data)
             plt.axvline(p1,c='r')
             plt.axvline(p2)
-            plt.savefig('sender.png')
+            plt.savefig('sender.png') """
 
             print('结果(cm)：')
             result = 100* 343/2 * ( p2 - p1 - psub) + self.dAA + self.dBB
