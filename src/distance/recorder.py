@@ -23,11 +23,11 @@ class waveRecorder():
         audio.terminate()
         return frames,width 
     def saveWave(self):
-        w=wave.open(self.filepath,'wb')
+       # w=wave.open(self.filepath,'wb')
         frames,width=self.record()
-        w.setnchannels(1)
-        w.setsampwidth(width)
-        w.setframerate(self.sampleRate)
-        w.writeframes(b''.join(frames))
-        w.close()
+        # w.setnchannels(1)
+        # w.setsampwidth(width)
+        # w.setframerate(self.sampleRate)
+        # w.writeframes(b''.join(frames))
+        # w.close()
         return  np.frombuffer(b''.join(frames),dtype='<i4').reshape(-1,1)

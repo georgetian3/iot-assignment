@@ -12,7 +12,7 @@ class ThreadWithReturnValue(Thread):
     def run(self):
         if self._target is not None:
             self._return = self._target(*self._args, **self._kwargs)
-
+ 
     def join(self):
         super(ThreadWithReturnValue,self).join()
         return self._return
@@ -21,8 +21,7 @@ class Receiver:
         self.host = host
         self.port = int(port)
         print(f'type is {type(self.port)}')
-        self.client = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        self.client.connect((self.host,self.port))
+
     def sendTime(self,time):
         send_msg = str(time)
         self.client.send(send_msg.encode('utf-8'))
@@ -42,6 +41,8 @@ class Receiver:
         x_filter = signal.filtfilt(b,a,x)
         return x_filter
     def main(self):
+        self.client = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+        self.client.connect((self.host,self.port))
         fs = 48000
         T = 0.5
         f1 = 4000
@@ -50,20 +51,31 @@ class Receiver:
         t = np.linspace(0,T,round(fs*T))
         y = scipy.signal.chirp(t,f2,T,f3)
         if (self.getmsg()):
+            print(f'get msg')
             r = recorder.waveRecorder(fs,6*T,'receiver.wav')
             thread = ThreadWithReturnValue(target=r.saveWave)
             thread.start()
+            print(1)
             time.sleep(3*T)
-            sd.play(y, fs)
+            print(2)
+            sd.play(y, fs,blocking=True)
+            print(f'before joined')
             data = thread.join()
+            print(f'rec joined')
+            print(data.shape)
             data = self.filter_bp(data.reshape(-1)[:int(6*T*fs)],fs,f1-10,f3+10)
             z1 = scipy.signal.chirp(t,f1,T,f2)
             z2 = scipy.signal.chirp(t,f2,T,f3)
             z1 = z1[::-1]
+            print(23)
             z2 = z2[::-1]
+            print(32)
             p1 = np.argmax(np.convolve(data,z1.reshape(-1),'valid'))
             p2 = np.argmax(np.convolve(data,z2.reshape(-1),'valid'))
+            print('joined rec')
             self.sendTime(p2-p1)
+            print('joined rec')
+
             """ plt.plot(data)
             plt.axvline(p1,c='r')
             plt.axvline(p2,c='g')

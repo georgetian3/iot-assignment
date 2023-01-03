@@ -23,8 +23,7 @@ class Sender:
         self.dAA = float(dAA)
         self.dBB = float(dBB)
         self.socket_server.bind((self.host,self.port))
-        self.socket_server.listen(5)
-        self.client_socket ,self.address = self.socket_server.accept()
+
 
     def receive_time(self):
         data = self.client_socket.recv(1024)          
@@ -45,6 +44,8 @@ class Sender:
         x_filter = signal.filtfilt(b,a,x)
         return x_filter
     def main(self):
+        self.socket_server.listen(5)
+        self.client_socket ,self.address = self.socket_server.accept()
         fs = 48000
         T =  0.5
         f1 = 4000
@@ -58,16 +59,19 @@ class Sender:
             thread.start()
             sd.play(y, fs,blocking=True)
             data  = thread.join()
+            print('joined')
             data  = self.filter_bp(data.reshape(-1)[:int(6*T*fs)],fs,f1-10,f3+10)
+            print('1')
             z1 = scipy.signal.chirp(t,f1,T,f2)
             z2 = scipy.signal.chirp(t,f2,T,f3)
             z1 = z1[::-1]
             z2 = z2[::-1]
-
+            print('2')
             p1 = np.argmax(np.convolve(data,z1.reshape(-1),'valid'))
             p2 = np.argmax(np.convolve(data,z2.reshape(-1),'valid'))
-
+            print(3)
             psub = self.receive_time()
+            print(4)
             psub = psub/fs
 
             # plt.plot(data)
