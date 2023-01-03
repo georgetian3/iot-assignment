@@ -1,6 +1,6 @@
 \section{声波测距}
 \subsection{实现}
-本次大作业的声波测距部分基于beepbeep算法，具体实现在\fileref{beep}文件夹下。该文件夹下分别有测距的发送方，\fileref{beep/sender.py}、测距的接收方\fileref{beep/receiver.py}、以及基于PyAudio库的录音模块\fileref{beep/recorder.py}
+本次大作业的声波测距部分基于beepbeep算法，具体实现在 \fileref{beep} 文件夹下。该文件夹下分别有测距的发送方，\fileref{beep/sender.py}、测距的接收方 \fileref{beep/receiver.py}、以及基于PyAudio库的录音模块 \fileref{beep/recorder.py}。 
 \subsubsection{发送方}
 对于发送方，首先使用tcp连接与接收方进行通信。发送方向接收方发送发送方准备就绪的信息，待收到接收方的准备就绪信息后，发送持续0.5秒，频率从4000Hz到6000Hz的线性调频信号。与此同时进行录音。
 

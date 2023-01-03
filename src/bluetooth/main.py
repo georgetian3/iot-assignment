@@ -29,14 +29,3 @@ sender = BluetoothSender(modulator)
 receiver = BluetoothReceiver(demodulator)
 encoder = TextEncoder(sender)
 decoder = TextDecoder(receiver)
-
-
-def print_queue(buffer: queue.Queue):
-    while True:
-        try:
-            bit = buffer.get(timeout=0.1)
-            if bit == -1:
-                bit = 'X'
-            print(bit, end='', flush=True)
-        except queue.Empty:
-            continue

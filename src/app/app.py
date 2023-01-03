@@ -43,9 +43,15 @@ def bt_receiver():
 
 @app.post('/dist-sender')
 def dist_sender():
-    pass
+    data = request.json
+    if data['action'] == 'send':
+        pass
+
 
 @app.post('/dist-receiver')
 def dist_receiver():
-    pass
+    data = request.json
+    if data['action'] == 'receive':
+        pass
+
 

@@ -2,10 +2,9 @@ import socket
 import scipy.signal
 import numpy as np
 import sounddevice as sd
-import recorder
+from . import recorder
 from threading import Thread
 from scipy import signal
-from scipy.io import wavfile
 import matplotlib.pyplot as plt
 class ThreadWithReturnValue(Thread):
     def run(self):
