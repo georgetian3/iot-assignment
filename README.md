@@ -44,4 +44,4 @@ options:
 
 先调用发送方：`py --ds`
 
-再调用发送方：`py --dr --host 192.168.1.xxx --port 2333 --dAA 0.1 --dBB 0.1`
+再调用接收方：`py --dr --host 192.168.1.xxx --port 2333 --dAA 0.1 --dBB 0.1`
