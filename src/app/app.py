@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request
 from bluetooth.main import properties, buffer, modulator, demodulator, sender, receiver, encoder, decoder
 from queue import Empty
+from distance.sender import Sender
+from distance.receiver import Receiver
 import logging
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
@@ -38,20 +40,20 @@ def bt_receiver():
         decoder.stop()
     elif data['action'] == 'read':
         return decoder.get(), 200 if decoder.running() else 400
-
     return 'ok'
 
 @app.post('/dist-sender')
 def dist_sender():
     data = request.json
     if data['action'] == 'send':
-        pass
-
+        sender = Sender(data['port'],data['aa'],data['bb'])
+        result = sender.main()
+        return result,200
 
 @app.post('/dist-receiver')
 def dist_receiver():
     data = request.json
     if data['action'] == 'receive':
-        pass
-
+        receiver = Receiver(data['ip'],data['port'])
+        receiver.main()
 

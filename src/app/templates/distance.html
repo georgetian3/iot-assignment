@@ -6,24 +6,31 @@
 
 <script>
   async function send() {
-    await fetch('/dist-sender', {
+    port_ = document.getElementById('port').value
+    dAA = document.getElementById('aa').value
+    dBB = document.getElementById('bb').value
+    const response = await fetch('/dist-sender', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({action: 'send'}),
+      body: JSON.stringify({action: 'send',port:port_,aa:dAA,bb:dBB}),
     });
-  }
+    result = document.getElementById('results')
+    result.innerText = await response.text();
+}
 
   async function receive() {
+    port_ = document.getElementById('port').value
+    ip_ = document.getElementById('ip').value
     await fetch('/dist-receiver', {
       method: 'POST',
       headers: {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({action: 'receive'}),
+      body: JSON.stringify({action: 'receive',port:port_,ip:ip_}),
     });
   }
 </script>
