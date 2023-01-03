@@ -3,7 +3,16 @@ from bluetooth.main import properties, buffer, modulator, demodulator, sender, r
 from queue import Empty
 from distance.sender import Sender
 from distance.receiver import Receiver
+from threading import Thread
 import logging
+class ThreadWithReturnValue(Thread):
+    def run(self):
+        if self._target is not None:
+            self._return = self._target(*self._args, **self._kwargs)
+ 
+    def join(self):
+        super(ThreadWithReturnValue,self).join()
+        return self._return
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
 
@@ -48,7 +57,9 @@ def dist_sender():
     print(data)
     if data['action'] == 'send':
         sender = Sender(data['port'],data['aa'],data['bb'])
-        result = sender.main()
+        thread = ThreadWithReturnValue(target=sender.main())
+        thread.start()
+        result = thread.join()
         print(f'result is {result}')
         return result,200
     print('dist sender')
@@ -59,7 +70,9 @@ def dist_receiver():
     data = request.json
     if data['action'] == 'receive':
         receiver = Receiver(data['ip'],data['port'])
-        receiver.main()
+        thread = Thread(target=receiver.main())
+        thread.start()
+        thread.join()
     print('dist receiver')
     return 'ok'
 

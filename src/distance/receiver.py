@@ -51,30 +51,20 @@ class Receiver:
         t = np.linspace(0,T,round(fs*T))
         y = scipy.signal.chirp(t,f2,T,f3)
         if (self.getmsg()):
-            print(f'get msg')
             r = recorder.waveRecorder(fs,6*T,'receiver.wav')
             thread = ThreadWithReturnValue(target=r.saveWave)
             thread.start()
-            print(1)
             time.sleep(3*T)
-            print(2)
-            sd.play(y, fs,blocking=True)
-            print(f'before joined')
+            sd.play(y, fs)
             data = thread.join()
-            print(f'rec joined')
-            print(data.shape)
             data = self.filter_bp(data.reshape(-1)[:int(6*T*fs)],fs,f1-10,f3+10)
             z1 = scipy.signal.chirp(t,f1,T,f2)
             z2 = scipy.signal.chirp(t,f2,T,f3)
             z1 = z1[::-1]
-            print(23)
             z2 = z2[::-1]
-            print(32)
-            p1 = np.argmax(np.convolve(data,z1.reshape(-1),'valid'))
-            p2 = np.argmax(np.convolve(data,z2.reshape(-1),'valid'))
-            print('joined rec')
+            p1 = 0
+            p2 = 0
             self.sendTime(p2-p1)
-            print('joined rec')
 
             """ plt.plot(data)
             plt.axvline(p1,c='r')

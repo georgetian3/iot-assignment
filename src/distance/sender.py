@@ -57,21 +57,16 @@ class Sender:
             r = recorder.waveRecorder(fs,6*T,'sender.wav')
             thread = ThreadWithReturnValue(target=r.saveWave)
             thread.start()
-            sd.play(y, fs,blocking=True)
+            sd.play(y, fs)
             data  = thread.join()
-            print('joined')
             data  = self.filter_bp(data.reshape(-1)[:int(6*T*fs)],fs,f1-10,f3+10)
-            print('1')
             z1 = scipy.signal.chirp(t,f1,T,f2)
             z2 = scipy.signal.chirp(t,f2,T,f3)
             z1 = z1[::-1]
             z2 = z2[::-1]
-            print('2')
             p1 = np.argmax(np.convolve(data,z1.reshape(-1),'valid'))
             p2 = np.argmax(np.convolve(data,z2.reshape(-1),'valid'))
-            print(3)
             psub = self.receive_time()
-            print(4)
             psub = psub/fs
 
             # plt.plot(data)
