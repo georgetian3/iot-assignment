@@ -1,5 +1,5 @@
-from flask import Flask, render_template, request
-from bluetooth.main import properties, buffer, modulator, demodulator, sender, receiver, encoder, decoder
+from flask import Flask, render_template, request, redirect
+from bluetooth.main import encoder, decoder
 from queue import Empty
 from distance.sender import Sender
 from distance.receiver import Receiver
@@ -19,6 +19,10 @@ log.setLevel(logging.ERROR)
 app = Flask(__name__)
 
 @app.get('/')
+def home():
+    return redirect('/bluetooth')
+
+@app.get('/index')
 def index():
     return render_template('index.html')
 
@@ -51,7 +55,7 @@ def bt_receiver():
         return decoder.get(), 200 if decoder.running() else 400
     return 'ok'
 
-@app.post('/dist-sender')
+""" @app.post('/dist-sender')
 def dist_sender():
     data = request.json
     print(data)
@@ -59,9 +63,10 @@ def dist_sender():
         sender = Sender(data['port'],data['aa'],data['bb'])
         thread = ThreadWithReturnValue(target=sender.main())
         thread.start()
-        # result = thread.join()
-        # print(f'result is {result}')
-        return '100',200
+        #result = thread.join()
+        result = '1'
+        print(f'result is {result}')
+        return result,200
     print('dist sender')
     return 'ok'
 
@@ -72,7 +77,9 @@ def dist_receiver():
         receiver = Receiver(data['ip'],data['port'])
         thread = Thread(target=receiver.main())
         thread.start()
-        thread.join()
+        print('started receiver thread')
+        #thread.join()
     print('dist receiver')
     return 'ok'
 
+ """
