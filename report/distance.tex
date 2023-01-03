@@ -26,11 +26,14 @@ $$
 
 与发送方类似地，接收方计算出接收方收到发送方信号的起始点$p_{B_1}$与接收方信号的起始点$p_{B_2}$，并将两个起始点之差通过 TCP 连接发送给发送方。
 
+\newpage
+
 \subsection{测试}
 本次实验由于是基于传播时间的，时间差偏离 0.0058s 测距结果就会偏离 1s，因此，本次实验对环境及其敏感，其与麦克风、扬声器的质量，信号音量大小等因素息息相关，因此，下述测量结果仅代表本机测量结果。
 
 \subsubsection{距离对性能的影响}
 
+\iffalse
 \begin{table}[h!]
     \centering
     \begin{tabular}{ccc}\toprule
@@ -42,15 +45,18 @@ $$
         200  & 38.32 & 8.23 \\ 
     \end{tabular}
 \end{table}
+\fi
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.8\linewidth]{1.png}
+    \includegraphics[width=0.6\linewidth]{1.png}
 \end{figure}
 
 \subsubsection{环境噪声的影响}
 
 测量距离为100cm
+
+\iffalse
 \begin{table}[h!]
     \centering
     \begin{tabular}{ccc}\toprule
@@ -61,15 +67,20 @@ $$
         嘈杂音乐  & 163.50 & 25.68 \\
     \end{tabular}
 \end{table}
+\fi
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.8\linewidth]{1.png}
+    \includegraphics[width=0.6\linewidth]{2.png}
 \end{figure}
+
+\newpage
 
 \subsection{遮挡物对性能的影响}
 
 测量距离为100cm
+
+\iffalse
 \begin{table}[h!]
     \centering
     \begin{tabular}{ccc}\toprule
@@ -80,8 +91,9 @@ $$
         书籍  & 112.32 & 12.38 \\
     \end{tabular}
 \end{table}
+\fi
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.8\linewidth]{1.png}
+    \includegraphics[width=0.6\linewidth]{3.png}
 \end{figure}
