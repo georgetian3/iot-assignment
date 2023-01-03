@@ -15,7 +15,7 @@
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({action: 'send',port:port_,aa:dAA,bb:dBB}),
+      body: JSON.stringify({action: 'send', port: port_,aa: dAA, bb: dBB}),
     });
     result = document.getElementById('results')
     result.innerText = await response.text();
@@ -30,20 +30,20 @@
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({action: 'receive',port:port_,ip:ip_}),
+      body: JSON.stringify({action: 'receive', port: port_, ip: ip_}),
     });
   }
 </script>
 
 <div id="send">
-  <label id="ip">发送方 IP</label> <input type="text"><br>
-  <label id="port">发送方端口</label> <input type="text"><br>
-  <label id="aa">发送方的麦克——扬声器距离</label> <input type="text"><br>
-  <label id="bb">接收方的麦克——扬声器距离</label> <input type="text"><br>
+  <label>发送方 IP</label> <input id="ip" type="text"><br>
+  <label>发送方端口</label> <input id="port" type="text"><br>
+  <label>发送方的麦克——扬声器距离</label> <input id="aa" type="text"><br>
+  <label>接收方的麦克——扬声器距离</label> <input id="bb" type="text"><br>
 
   <button id="send" type="submit" class="btn btn-primary" onclick="send()">调用发送方</button>
   <button id="receive" type="submit" class="btn btn-primary" onclick="receive()">调用接收方</button>
-
+  <br>
   <label>结果（可能需要等待一分钟左右）</label>
   <div id="results"></div>
 

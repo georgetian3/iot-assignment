@@ -30,9 +30,9 @@ options:
 
 ### 通信
 
-发送方调：`py --bs "insert Unicode string here"`
+先调用接收方：`py --br`
 
-接收方调：`py --br`
+再调用发送方：`py --bs "insert Unicode string here"`
 
 计算丢包率和误码率：`py --btest sent received`
 
