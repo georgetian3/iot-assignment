@@ -51,6 +51,7 @@ def dist_sender():
         result = sender.main()
         return result,200
     print('dist sender')
+    return 'ok'
 
 @app.post('/dist-receiver')
 def dist_receiver():
@@ -59,4 +60,5 @@ def dist_receiver():
         receiver = Receiver(data['ip'],data['port'])
         receiver.main()
     print('dist receiver')
+    return 'ok'
 
